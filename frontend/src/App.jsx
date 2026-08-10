@@ -8,7 +8,6 @@ import {
   Route,
 } from "react-router-dom";
 
-
 function App() {
   const [count, setCount] = useState(0)
 
@@ -17,10 +16,7 @@ function App() {
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<CameraPage />} />
-          {/* <Route path="/about" element={<About />} />
-          <Route path="/profile" element={<Profile />} /> */}
         </Route>
-
       </Routes>
     </BrowserRouter>
   );
