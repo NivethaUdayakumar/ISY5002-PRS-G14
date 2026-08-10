@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Map } from "lucide-react";
+
+const FRAME_POLL_INTERVAL_MS = 3000;
 
 const areas = [
   {
@@ -50,12 +52,58 @@ const areas = [
   },
 ];
 
-function CameraCard({ camera }) {
+function CameraCard({ camera, enablePolling = false }) {
+  const [offset, setOffset] = useState(1);
+  const [frameSrc, setFrameSrc] = useState(camera.thumbnail);
+  const prevUrlRef = useRef(null);
+
+  useEffect(() => {
+    if (!enablePolling) return;
+
+    let cancelled = false;
+
+    const fetchFrame = async (currentOffset) => {
+      try {
+        const res = await fetch(
+          `http://127.0.0.1:8000/frame?offset=${currentOffset}`
+        );
+        if (!res.ok || cancelled) return;
+
+        const blob = await res.blob();
+        if (cancelled) return;
+
+        const url = URL.createObjectURL(blob);
+        setFrameSrc(url);
+        if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current);
+        prevUrlRef.current = url;
+      } catch (err) {
+        console.error("Failed to fetch camera frame", err);
+      }
+    };
+
+    fetchFrame(offset);
+
+    const interval = setInterval(() => {
+      setOffset((prev) => {
+        const next = prev + 3;
+        fetchFrame(next);
+        return next;
+      });
+    }, FRAME_POLL_INTERVAL_MS);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enablePolling]);
+
   return (
     <div className="group cursor-pointer">
       <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-gray-900">
         <img
-          src={camera.thumbnail}
+          src={frameSrc}
           alt={camera.name}
           className="h-full w-full object-cover"
         />
@@ -100,7 +148,7 @@ function CameraCard({ camera }) {
   );
 }
 
-function AreaSection({ area }) {
+function AreaSection({ area, firstCameraId }) {
   return (
     <section>
       <div className="flex items-center justify-between border-b border-gray-200 pb-3">
@@ -122,7 +170,11 @@ function AreaSection({ area }) {
 
       <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {area.cameras.map((camera) => (
-          <CameraCard key={camera.id} camera={camera} />
+          <CameraCard
+            key={camera.id}
+            camera={camera}
+            enablePolling={camera.id === firstCameraId}
+          />
         ))}
       </div>
     </section>
@@ -139,7 +191,11 @@ export default function CameraPage() {
 
       <div className="space-y-10">
         {areas.map((area) => (
-          <AreaSection key={area.name} area={area} />
+          <AreaSection
+            key={area.name}
+            area={area}
+            firstCameraId={areas[0].cameras[0].id}
+          />
         ))}
       </div>
     </div>
