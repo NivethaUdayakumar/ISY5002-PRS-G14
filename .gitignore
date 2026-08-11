@@ -68,3 +68,5 @@ tmp/
 # Windows
 desktop.ini
 $RECYCLE.BIN/
+
+*.mp4
