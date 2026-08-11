@@ -1,6 +1,6 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Query
 from fastapi.responses import Response
-from constants.file_paths import FilePaths
+from constants.file_paths import FilePaths, CameraFilePaths
 import cv2
 
 
@@ -10,8 +10,9 @@ router = APIRouter(
 )
 
 @router.get("/frame")
-def get_frame(offset: float = Query(..., ge=0)):
-    cap = cv2.VideoCapture(FilePaths.CAMERA_1)
+def get_frame(camera_id: str, offset: float = Query(..., ge=0)):
+    camera_file_path = CameraFilePaths.get(camera_id)
+    cap = cv2.VideoCapture(camera_file_path)
 
     if not cap.isOpened():
         raise HTTPException(

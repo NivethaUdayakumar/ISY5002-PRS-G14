@@ -3,7 +3,7 @@ import { Map } from "lucide-react";
 import ReserveMapModal from "../modals/reserve_map_modal";
 import { locations as reserveMapLocations } from "../data/reserve_map_data";
 
-const FRAME_POLL_INTERVAL_MS = 3000;
+const OFFSET_TICK_INTERVAL_MS = 1000;
 
 const areas = [
   {
@@ -12,20 +12,19 @@ const areas = [
     cameraCount: 2,
     cameras: [
       {
-        id: "C1",
+        id: "camera_01",
         name: "Island Mere",
-        timestamp: "10:55:12",
-        clock: "10:55",
         sightingsToday: 8,
-        thumbnail: "/thumbnails/island-mere.jpg",
       },
       {
-        id: "C2",
+        id: "camera_02",
         name: "Bittern Hide",
-        timestamp: "10:55:09",
-        clock: "10:55",
         sightingsToday: 5,
-        thumbnail: "/thumbnails/bittern-hide.jpg",
+      },
+      {
+        id: "camera_03",
+        name: "Bittern Hide",
+        sightingsToday: 3,
       },
     ],
   },
@@ -35,39 +34,36 @@ const areas = [
     cameraCount: 2,
     cameras: [
       {
-        id: "C3",
+        id: "camera_04",
         name: "Scrape East",
-        timestamp: "10:55:14",
-        clock: "10:55",
         sightingsToday: 11,
-        thumbnail: "/thumbnails/scrape-east.jpg",
       },
       {
-        id: "C5",
+        id: "camera_05",
         name: "Sluice",
-        timestamp: "10:55:11",
-        clock: "10:55",
         sightingsToday: 9,
-        thumbnail: "/thumbnails/sluice.jpg",
+      },
+      {
+        id: "camera_06",
+        name: "Sluice",
+        sightingsToday: 9,
       },
     ],
   },
 ];
 
-function CameraCard({ camera, enablePolling = false }) {
-  const [offset, setOffset] = useState(1);
-  const [frameSrc, setFrameSrc] = useState(camera.thumbnail);
+function CameraCard({ camera, offset }) {
+  const [frameSrc, setFrameSrc] = useState();
   const prevUrlRef = useRef(null);
 
+  // Refetch the frame whenever offset changes.
   useEffect(() => {
-    if (!enablePolling) return;
-
     let cancelled = false;
 
-    const fetchFrame = async (currentOffset) => {
+    const fetchFrame = async () => {
       try {
         const res = await fetch(
-          `http://127.0.0.1:8000/frame?offset=${currentOffset}`
+          `http://127.0.0.1:8000/frame?camera_id=${camera.id}&offset=${offset}`
         );
         if (!res.ok || cancelled) return;
 
@@ -83,23 +79,18 @@ function CameraCard({ camera, enablePolling = false }) {
       }
     };
 
-    fetchFrame(offset);
-
-    const interval = setInterval(() => {
-      setOffset((prev) => {
-        const next = prev + 3;
-        fetchFrame(next);
-        return next;
-      });
-    }, FRAME_POLL_INTERVAL_MS);
+    fetchFrame();
 
     return () => {
       cancelled = true;
-      clearInterval(interval);
+    };
+  }, [offset, camera.id]);
+
+  useEffect(() => {
+    return () => {
       if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enablePolling]);
+  }, []);
 
   return (
     <div className="group cursor-pointer">
@@ -150,7 +141,7 @@ function CameraCard({ camera, enablePolling = false }) {
   );
 }
 
-function AreaSection({ area, firstCameraId, onOpenMap }) {
+function AreaSection({ area, offset, onOpenMap }) {
   return (
     <section>
       <div className="flex items-center justify-between border-b border-gray-200 pb-3">
@@ -175,11 +166,7 @@ function AreaSection({ area, firstCameraId, onOpenMap }) {
 
       <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {area.cameras.map((camera) => (
-          <CameraCard
-            key={camera.id}
-            camera={camera}
-            enablePolling={camera.id === firstCameraId}
-          />
+          <CameraCard key={camera.id} camera={camera} offset={offset} />
         ))}
       </div>
     </section>
@@ -189,6 +176,15 @@ function AreaSection({ area, firstCameraId, onOpenMap }) {
 export default function CameraPage() {
   const [mapOpen, setMapOpen] = useState(false);
   const [mapInitialLocationId, setMapInitialLocationId] = useState(null);
+  const [offset, setOffset] = useState(1);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setOffset((prev) => prev + 1);
+    }, OFFSET_TICK_INTERVAL_MS);
+
+    return () => clearInterval(interval);
+  }, []);
 
   function handleOpenMap(areaName) {
     const location = reserveMapLocations.find((item) => item.name === areaName);
@@ -208,7 +204,7 @@ export default function CameraPage() {
           <AreaSection
             key={area.name}
             area={area}
-            firstCameraId={areas[0].cameras[0].id}
+            offset={offset}
             onOpenMap={handleOpenMap}
           />
         ))}
