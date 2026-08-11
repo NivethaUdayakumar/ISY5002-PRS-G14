@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import { ModalOverlay, ModalCard, ModalHeader } from '../components/modal';
+import { PillButton } from '../components/pill_button';
 
 const candidateSpecies = [
   'African elephant',
@@ -20,22 +22,15 @@ export default function ClassifySpeciesModal({ open, onClose, onConfirm }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 px-4 py-10 sm:items-center sm:px-6">
-      <div className="w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-black/5">
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5">
+    <ModalOverlay align="end" className="py-10 sm:px-6">
+      <ModalCard className="max-w-3xl rounded-3xl shadow-2xl ring-1 ring-black/5">
+        <ModalHeader onClose={onClose}>
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-indigo-600">Classification</p>
             <h2 className="mt-2 text-2xl font-semibold text-gray-900">Classify Species</h2>
             <p className="mt-1 text-sm text-gray-500">Review the detected animal and confirm the species label.</p>
           </div>
-          <button
-            onClick={onClose}
-            className="rounded-full bg-gray-100 p-2 text-gray-600 transition hover:bg-gray-200 hover:text-gray-900"
-            aria-label="Close modal"
-          >
-            ✕
-          </button>
-        </div>
+        </ModalHeader>
 
         <div className="grid gap-6 px-6 py-6 sm:grid-cols-[320px_1fr]">
           <section className="space-y-4 rounded-3xl bg-slate-50 p-4">
@@ -110,27 +105,23 @@ export default function ClassifySpeciesModal({ open, onClose, onConfirm }) {
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-full border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
-              >
+              <PillButton size="lg" onClick={onClose} className="border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">
                 Cancel
-              </button>
-              <button
-                type="button"
+              </PillButton>
+              <PillButton
+                size="lg"
                 onClick={() => {
                   if (onConfirm) onConfirm({ species: selectedSpecies, notes: classificationNotes });
                   onClose();
                 }}
-                className="rounded-full bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+                className="bg-indigo-600 text-white shadow-sm hover:bg-indigo-700"
               >
                 Save classification
-              </button>
+              </PillButton>
             </div>
           </section>
         </div>
-      </div>
-    </div>
+      </ModalCard>
+    </ModalOverlay>
   );
 }
