@@ -1,4 +1,7 @@
 import { useMemo, useState } from 'react';
+import { ModalOverlay, ModalCard, ModalHeader } from '../components/modal';
+import { PillButton } from '../components/pill_button';
+import { StripedPlaceholder } from '../components/striped_placeholder';
 
 const initialSpeciesOptions = [
   'Eurasian Jay',
@@ -113,15 +116,7 @@ const initialSightings = [
 ];
 
 function SightingThumbnail() {
-  return (
-    <div
-      className="h-14 w-14 flex-shrink-0 rounded-xl bg-gray-200"
-      style={{
-        backgroundImage:
-          'repeating-linear-gradient(135deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 2px, transparent 2px, transparent 8px)',
-      }}
-    />
-  );
+  return <StripedPlaceholder className="h-14 w-14 flex-shrink-0 rounded-xl bg-gray-200" />;
 }
 
 export default function NotificationsModal({ open, onClose }) {
@@ -208,9 +203,9 @@ export default function NotificationsModal({ open, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-8">
-      <div className="flex h-[85vh] w-full max-w-6xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-black/5">
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5">
+    <ModalOverlay className="py-8">
+      <ModalCard className="h-[85vh] max-w-6xl rounded-3xl shadow-2xl ring-1 ring-black/5">
+        <ModalHeader onClose={onClose}>
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold text-gray-900">Notifications — unreviewed sightings</h2>
             {newCount > 0 && (
@@ -219,14 +214,7 @@ export default function NotificationsModal({ open, onClose }) {
               </span>
             )}
           </div>
-          <button
-            onClick={onClose}
-            className="rounded-full bg-gray-100 p-2 text-gray-600 transition hover:bg-gray-200 hover:text-gray-900"
-            aria-label="Close modal"
-          >
-            ✕
-          </button>
-        </div>
+        </ModalHeader>
 
         <div className="grid min-h-0 flex-1 grid-cols-[280px_1fr_320px]">
           <div className="min-h-0 overflow-y-auto border-r border-gray-200 p-3">
@@ -373,20 +361,12 @@ export default function NotificationsModal({ open, onClose }) {
                 </div>
 
                 <div className="mt-6 flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={handleSave}
-                    className="rounded-full bg-black px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800"
-                  >
+                  <PillButton onClick={handleSave} className="bg-black text-white hover:bg-gray-800">
                     Save
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleDelete}
-                    className="rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
-                  >
+                  </PillButton>
+                  <PillButton onClick={handleDelete} className="border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">
                     Delete sighting
-                  </button>
+                  </PillButton>
                 </div>
               </div>
             </>
@@ -396,7 +376,7 @@ export default function NotificationsModal({ open, onClose }) {
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </ModalCard>
+    </ModalOverlay>
   );
 }

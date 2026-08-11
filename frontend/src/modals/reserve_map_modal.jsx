@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { X, Bird, PawPrint, CircleHelp, Video, Bookmark, Check, Plus, Trash2, Search, ZoomOut } from 'lucide-react';
+import { Bird, PawPrint, CircleHelp, Video, Bookmark, Check, Plus, Trash2, Search, ZoomOut } from 'lucide-react';
 import {
   locations,
   cameras,
@@ -9,6 +9,12 @@ import {
   sightingsForLocation,
   CLASS_META,
 } from '../data/reserve_map_data';
+import { ModalOverlay, ModalCard, ModalHeader } from '../components/modal';
+import { PillButton } from '../components/pill_button';
+import { StripedPlaceholder } from '../components/striped_placeholder';
+
+const CLOSE_CLASSNAME = 'rounded-full bg-[#f0f0f0] p-2 text-[#1e1e1e] transition hover:bg-[#e6e6e6]';
+const CLOSE_CLASSNAME_SM = 'rounded-full bg-[#f0f0f0] p-1.5 text-[#1e1e1e] transition hover:bg-[#e6e6e6]';
 
 const RING_RADIUS_PX = 36;
 const MAX_RING_PINS = 5;
@@ -47,14 +53,7 @@ function uniqueRingSightings(sightingList, cameraId) {
 function SightingThumbnail({ cls, saved }) {
   const meta = CLASS_META[cls] || CLASS_META.Unknown;
   return (
-    <div
-      className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl"
-      style={{
-        backgroundColor: meta.fill,
-        backgroundImage:
-          'repeating-linear-gradient(135deg, rgba(0,0,0,0.06) 0px, rgba(0,0,0,0.06) 2px, transparent 2px, transparent 8px)',
-      }}
-    >
+    <StripedPlaceholder className="h-12 w-12 flex-shrink-0 rounded-xl" style={{ backgroundColor: meta.fill }}>
       <div className="absolute inset-0 flex items-center justify-center">
         <ClassIcon cls={cls} size={18} />
       </div>
@@ -63,7 +62,7 @@ function SightingThumbnail({ cls, saved }) {
           <Bookmark size={9} color="#fff" fill="#fff" />
         </div>
       )}
-    </div>
+    </StripedPlaceholder>
   );
 }
 
@@ -91,23 +90,15 @@ function CameraLiveViewLightbox({ camera, onClose }) {
   if (!camera) return null;
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
-      <div className="flex max-h-full w-full max-w-md flex-col overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-black/5">
-        <div className="flex flex-shrink-0 items-center justify-between border-b border-[#e6e6e6] px-5 py-4">
+      <ModalCard className="max-h-full max-w-md rounded-3xl shadow-2xl ring-1 ring-black/5">
+        <ModalHeader onClose={onClose} closeLabel="Close live view" closeClassName={CLOSE_CLASSNAME_SM} borderClassName="border-[#e6e6e6]" className="px-5 py-4">
           <div className="flex items-center gap-2">
             <Video size={16} color="#1e1e1e" />
             <h3 className="text-sm font-semibold text-[#1e1e1e]">
               {camera.id} · {camera.name}
             </h3>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full bg-[#f0f0f0] p-1.5 text-[#1e1e1e] transition hover:bg-[#e6e6e6]"
-            aria-label="Close live view"
-          >
-            <X size={14} />
-          </button>
-        </div>
+        </ModalHeader>
         <div className="overflow-y-auto">
           <div className="relative aspect-video w-full bg-[#1e1e1e]">
             <span className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1">
@@ -120,7 +111,7 @@ function CameraLiveViewLightbox({ camera, onClose }) {
           </div>
           <div className="px-5 py-4 text-xs text-gray-500">{camera.locationName}</div>
         </div>
-      </div>
+      </ModalCard>
     </div>
   );
 }
@@ -142,31 +133,16 @@ function SightingDetailLightbox({ sighting, camera, collections, onClose, onTogg
 
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
-      <div className="flex max-h-full w-full max-w-md flex-col overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-black/5">
-        <div className="flex flex-shrink-0 items-center justify-between border-b border-[#e6e6e6] px-5 py-4">
+      <ModalCard className="max-h-full max-w-md rounded-3xl shadow-2xl ring-1 ring-black/5">
+        <ModalHeader onClose={onClose} closeLabel="Close sighting detail" closeClassName={CLOSE_CLASSNAME_SM} borderClassName="border-[#e6e6e6]" className="px-5 py-4">
           <h3 className="text-sm font-semibold text-[#1e1e1e]">Sighting detail</h3>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full bg-[#f0f0f0] p-1.5 text-[#1e1e1e] transition hover:bg-[#e6e6e6]"
-            aria-label="Close sighting detail"
-          >
-            <X size={14} />
-          </button>
-        </div>
+        </ModalHeader>
         <div className="overflow-y-auto p-5">
-          <div
-            className="relative h-40 w-full overflow-hidden rounded-2xl"
-            style={{
-              backgroundColor: meta.fill,
-              backgroundImage:
-                'repeating-linear-gradient(135deg, rgba(0,0,0,0.06) 0px, rgba(0,0,0,0.06) 2px, transparent 2px, transparent 8px)',
-            }}
-          >
+          <StripedPlaceholder className="relative h-40 w-full rounded-2xl" style={{ backgroundColor: meta.fill }}>
             <div className="absolute inset-0 flex items-center justify-center">
               <ClassIcon cls={sighting.class} size={36} />
             </div>
-          </div>
+          </StripedPlaceholder>
           <div className="mt-4 space-y-2 text-sm">
             <p className="text-base font-semibold text-[#1e1e1e]">{sighting.species}</p>
             <div className="flex items-center gap-1.5">
@@ -200,31 +176,33 @@ function SightingDetailLightbox({ sighting, camera, collections, onClose, onTogg
               {collections.map((collection) => {
                 const active = collection.sightingIds.includes(sighting.id);
                 return (
-                  <button
+                  <PillButton
                     key={collection.id}
-                    type="button"
+                    size="sm"
+                    icon={active ? Check : undefined}
+                    iconSize={11}
                     onClick={() => onToggleCollection(collection.id, sighting.id)}
-                    className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                    className={`border ${
                       active
                         ? 'border-[#1e1e1e] bg-[#1e1e1e] text-white'
                         : 'border-[#e6e6e6] bg-white text-[#1e1e1e] hover:bg-[#f5f5f5]'
                     }`}
                   >
-                    {active && <Check size={11} />}
                     {collection.name}
-                  </button>
+                  </PillButton>
                 );
               })}
 
               {!isCreating && (
-                <button
-                  type="button"
+                <PillButton
+                  size="sm"
+                  icon={Plus}
+                  iconSize={11}
                   onClick={() => setIsCreating(true)}
-                  className="inline-flex items-center gap-1 rounded-full border border-dashed border-[#c9c9c9] bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-[#f5f5f5]"
+                  className="border border-dashed border-[#c9c9c9] bg-white text-gray-600 hover:bg-[#f5f5f5]"
                 >
-                  <Plus size={11} />
                   New collection
-                </button>
+                </PillButton>
               )}
             </div>
 
@@ -265,16 +243,16 @@ function SightingDetailLightbox({ sighting, camera, collections, onClose, onTogg
             )}
           </div>
 
-          <button
-            type="button"
+          <PillButton
+            icon={Trash2}
+            iconSize={14}
             onClick={() => onDelete(sighting)}
-            className="mt-6 flex items-center gap-1.5 rounded-full border border-[#e6e6e6] bg-white px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+            className="mt-6 border border-[#e6e6e6] bg-white text-red-600 hover:bg-red-50"
           >
-            <Trash2 size={14} />
             Delete sighting
-          </button>
+          </PillButton>
         </div>
-      </div>
+      </ModalCard>
     </div>
   );
 }
@@ -387,27 +365,16 @@ export default function ReserveMapModal({ open, onClose, initialLocationId }) {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-4"
-      style={{ fontFamily: "'Instrument Sans', sans-serif" }}
-    >
-      <div className="flex h-[94vh] w-full max-w-[1600px] flex-col overflow-hidden rounded-3xl border border-[#e6e6e6] bg-white shadow-2xl">
-        <div className="flex items-center justify-between border-b border-[#e6e6e6] px-6 py-5">
+    <ModalOverlay className="py-4" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>
+      <ModalCard className="h-[94vh] max-w-[1600px] rounded-3xl border border-[#e6e6e6] shadow-2xl">
+        <ModalHeader onClose={onClose} closeLabel="Close reserve map" closeClassName={CLOSE_CLASSNAME} borderClassName="border-[#e6e6e6]">
           <div>
             <h2 className="text-lg font-semibold text-[#1e1e1e]">Reserve map — camera network</h2>
             <p className="mt-1 text-sm text-gray-500">
               {visibleCameras.length} cameras · {sidebarSightings.length} sightings this week
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full bg-[#f0f0f0] p-2 text-[#1e1e1e] transition hover:bg-[#e6e6e6]"
-            aria-label="Close reserve map"
-          >
-            <X size={16} />
-          </button>
-        </div>
+        </ModalHeader>
 
         <div className="flex min-h-0 flex-1">
           <div className="relative min-w-0 flex-1 overflow-hidden">
@@ -495,14 +462,14 @@ export default function ReserveMapModal({ open, onClose, initialLocationId }) {
                 </select>
               </div>
               {zoomedCamera && (
-                <button
-                  type="button"
+                <PillButton
+                  size="sm"
+                  icon={ZoomOut}
                   onClick={() => handleZoomSelect(null)}
-                  className="flex items-center gap-1.5 rounded-full border border-[#e6e6e6] bg-white/95 px-3 py-1.5 text-xs font-medium text-[#1e1e1e] shadow-sm backdrop-blur-sm transition hover:bg-[#f5f5f5]"
+                  className="border border-[#e6e6e6] bg-white/95 text-[#1e1e1e] shadow-sm backdrop-blur-sm hover:bg-[#f5f5f5]"
                 >
-                  <ZoomOut size={13} />
                   Full map
-                </button>
+                </PillButton>
               )}
             </div>
 
@@ -545,7 +512,7 @@ export default function ReserveMapModal({ open, onClose, initialLocationId }) {
             )}
           </div>
         </div>
-      </div>
-    </div>
+      </ModalCard>
+    </ModalOverlay>
   );
 }
