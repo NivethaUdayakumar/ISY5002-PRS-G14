@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Map } from "lucide-react";
+import ReserveMapModal from "../modals/reserve_map_modal";
+import { locations as reserveMapLocations } from "../data/reserve_map_data";
 
 const FRAME_POLL_INTERVAL_MS = 3000;
 
@@ -148,7 +150,7 @@ function CameraCard({ camera, enablePolling = false }) {
   );
 }
 
-function AreaSection({ area, firstCameraId }) {
+function AreaSection({ area, firstCameraId, onOpenMap }) {
   return (
     <section>
       <div className="flex items-center justify-between border-b border-gray-200 pb-3">
@@ -162,7 +164,10 @@ function AreaSection({ area, firstCameraId }) {
           </span>
         </div>
 
-        <button className="flex items-center gap-1.5 rounded-full border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+        <button
+          onClick={() => onOpenMap(area.name)}
+          className="flex items-center gap-1.5 rounded-full border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+        >
           <Map className="h-4 w-4" />
           Map
         </button>
@@ -182,6 +187,15 @@ function AreaSection({ area, firstCameraId }) {
 }
 
 export default function CameraPage() {
+  const [mapOpen, setMapOpen] = useState(false);
+  const [mapInitialLocationId, setMapInitialLocationId] = useState(null);
+
+  function handleOpenMap(areaName) {
+    const location = reserveMapLocations.find((item) => item.name === areaName);
+    setMapInitialLocationId(location?.id ?? null);
+    setMapOpen(true);
+  }
+
   return (
     <div className="p-8">
       <div className="mb-6">
@@ -195,9 +209,16 @@ export default function CameraPage() {
             key={area.name}
             area={area}
             firstCameraId={areas[0].cameras[0].id}
+            onOpenMap={handleOpenMap}
           />
         ))}
       </div>
+
+      <ReserveMapModal
+        open={mapOpen}
+        onClose={() => setMapOpen(false)}
+        initialLocationId={mapInitialLocationId}
+      />
     </div>
   );
 }

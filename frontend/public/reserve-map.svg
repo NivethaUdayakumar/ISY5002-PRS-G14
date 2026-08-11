@@ -1,0 +1,188 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <linearGradient id="ground" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#eef1e2"/>
+      <stop offset="100%" stop-color="#e2e8d2"/>
+    </linearGradient>
+    <linearGradient id="forestFloor" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#dbe6c9"/>
+      <stop offset="100%" stop-color="#c9dab2"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a9d2d6"/>
+      <stop offset="45%" stop-color="#7fb8c0"/>
+      <stop offset="100%" stop-color="#4f92a3"/>
+    </linearGradient>
+    <linearGradient id="heath" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ded2a8"/>
+      <stop offset="100%" stop-color="#cdb97f"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="30%" cy="15%" r="70%">
+      <stop offset="0%" stop-color="#fff8e0" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#fff8e0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="canopyBall" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#7fae6d"/>
+      <stop offset="100%" stop-color="#3d6b45"/>
+    </radialGradient>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="800" fill="url(#ground)"/>
+  <rect x="0" y="0" width="1200" height="800" fill="url(#sunGlow)"/>
+
+  <!-- ============ LAGOON (bottom-right) ============ -->
+  <path d="M1200,800 L620,800 C660,700 700,660 760,610 C840,545 940,500 1060,450 C1110,428 1160,410 1200,398 Z" fill="#e7dcb8"/>
+  <path d="M1200,800 L660,800 C700,706 745,668 805,618 C880,556 970,512 1080,466 C1125,447 1165,432 1200,420 Z" fill="url(#water)"/>
+  <g stroke="#dff0ef" stroke-width="3" opacity="0.5" fill="none" stroke-linecap="round">
+    <path d="M760,700 C830,672 900,660 970,626"/>
+    <path d="M720,750 C800,718 880,702 960,664"/>
+    <path d="M840,600 C900,578 950,566 1010,538"/>
+    <path d="M900,530 C950,510 995,498 1040,474"/>
+  </g>
+  <g fill="#cdbf8f" opacity="0.8">
+    <ellipse cx="705" cy="742" rx="20" ry="7"/>
+    <ellipse cx="820" cy="676" rx="16" ry="6"/>
+    <ellipse cx="1120" cy="452" rx="18" ry="6"/>
+  </g>
+  <g fill="#5c7d4f" opacity="0.85">
+    <ellipse cx="700" cy="735" rx="7" ry="5"/>
+    <ellipse cx="714" cy="740" rx="6" ry="4"/>
+    <ellipse cx="815" cy="670" rx="6" ry="4"/>
+    <ellipse cx="1114" cy="447" rx="6" ry="4"/>
+    <ellipse cx="1127" cy="452" rx="5" ry="4"/>
+  </g>
+
+  <!-- ============ HEATHLAND (top-right) ============ -->
+  <path d="M1200,0 L560,0 C610,90 700,120 800,150 C930,188 1080,210 1200,224 Z" fill="url(#heath)"/>
+  <g fill="#b7924f" opacity="0.55">
+    <circle cx="700" cy="55" r="5"/>
+    <circle cx="745" cy="95" r="4"/>
+    <circle cx="805" cy="50" r="6"/>
+    <circle cx="855" cy="115" r="4"/>
+    <circle cx="925" cy="80" r="5"/>
+    <circle cx="985" cy="140" r="4"/>
+    <circle cx="1045" cy="90" r="5"/>
+    <circle cx="1100" cy="150" r="4"/>
+    <circle cx="640" cy="80" r="4"/>
+  </g>
+  <g fill="#8a9a4a" opacity="0.65">
+    <ellipse cx="680" cy="70" rx="10" ry="5" transform="rotate(-15 680 70)"/>
+    <ellipse cx="770" cy="60" rx="9" ry="5" transform="rotate(10 770 60)"/>
+    <ellipse cx="880" cy="100" rx="10" ry="5" transform="rotate(-8 880 100)"/>
+    <ellipse cx="960" cy="70" rx="9" ry="5" transform="rotate(12 960 70)"/>
+    <ellipse cx="1030" cy="130" rx="10" ry="5" transform="rotate(-10 1030 130)"/>
+    <ellipse cx="1110" cy="95" rx="9" ry="5" transform="rotate(6 1110 95)"/>
+  </g>
+
+  <!-- ============ RIVER connecting forest to lagoon ============ -->
+  <path d="M120,120 C220,220 260,320 320,390 C400,480 480,520 560,560 C650,606 700,650 700,730"
+        fill="none" stroke="#7fb8c0" stroke-width="26" stroke-linecap="round" opacity="0.85"/>
+  <path d="M120,120 C220,220 260,320 320,390 C400,480 480,520 560,560 C650,606 700,650 700,730"
+        fill="none" stroke="#a9d2d6" stroke-width="10" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- ============ FOREST (left / rainforest canopy) ============ -->
+  <path d="M0,0 L470,0 C450,140 400,220 340,300 C270,392 200,440 120,500 C70,536 30,560 0,580 Z" fill="url(#forestFloor)"/>
+
+  <!-- canopy clusters: layered blob "trees" for a dense jungle-canopy look -->
+  <g>
+    <!-- cluster 1 -->
+    <g>
+      <ellipse cx="150" cy="120" rx="52" ry="34" fill="#274a34" opacity="0.35"/>
+      <circle cx="120" cy="100" r="34" fill="url(#canopyBall)"/>
+      <circle cx="165" cy="90" r="40" fill="url(#canopyBall)"/>
+      <circle cx="195" cy="120" r="30" fill="url(#canopyBall)"/>
+      <circle cx="140" cy="135" r="28" fill="#588a53"/>
+    </g>
+    <!-- cluster 2 -->
+    <g>
+      <ellipse cx="290" cy="190" rx="58" ry="36" fill="#274a34" opacity="0.32"/>
+      <circle cx="260" cy="165" r="36" fill="url(#canopyBall)"/>
+      <circle cx="310" cy="155" r="42" fill="url(#canopyBall)"/>
+      <circle cx="335" cy="190" r="28" fill="#588a53"/>
+      <circle cx="280" cy="205" r="30" fill="#4c7a49"/>
+    </g>
+    <!-- cluster 3 -->
+    <g>
+      <ellipse cx="90" cy="260" rx="50" ry="32" fill="#274a34" opacity="0.32"/>
+      <circle cx="65" cy="240" r="32" fill="url(#canopyBall)"/>
+      <circle cx="110" cy="235" r="36" fill="url(#canopyBall)"/>
+      <circle cx="120" cy="270" r="26" fill="#588a53"/>
+    </g>
+    <!-- cluster 4 -->
+    <g>
+      <ellipse cx="220" cy="310" rx="56" ry="34" fill="#274a34" opacity="0.32"/>
+      <circle cx="190" cy="290" r="34" fill="url(#canopyBall)"/>
+      <circle cx="240" cy="280" r="40" fill="url(#canopyBall)"/>
+      <circle cx="255" cy="315" r="28" fill="#4c7a49"/>
+      <circle cx="200" cy="325" r="26" fill="#588a53"/>
+    </g>
+    <!-- cluster 5 -->
+    <g>
+      <ellipse cx="360" cy="330" rx="48" ry="30" fill="#274a34" opacity="0.3"/>
+      <circle cx="340" cy="312" r="30" fill="url(#canopyBall)"/>
+      <circle cx="380" cy="308" r="34" fill="url(#canopyBall)"/>
+      <circle cx="385" cy="340" r="24" fill="#588a53"/>
+    </g>
+    <!-- cluster 6 -->
+    <g>
+      <ellipse cx="130" cy="400" rx="54" ry="34" fill="#274a34" opacity="0.32"/>
+      <circle cx="100" cy="382" r="32" fill="url(#canopyBall)"/>
+      <circle cx="150" cy="376" r="38" fill="url(#canopyBall)"/>
+      <circle cx="160" cy="412" r="26" fill="#4c7a49"/>
+      <circle cx="105" cy="418" r="24" fill="#588a53"/>
+    </g>
+    <!-- cluster 7 -->
+    <g>
+      <ellipse cx="260" cy="440" rx="46" ry="28" fill="#274a34" opacity="0.3"/>
+      <circle cx="240" cy="424" r="28" fill="url(#canopyBall)"/>
+      <circle cx="278" cy="420" r="32" fill="url(#canopyBall)"/>
+      <circle cx="280" cy="450" r="22" fill="#588a53"/>
+    </g>
+    <!-- cluster 8 (lower, thinning edge) -->
+    <g>
+      <ellipse cx="60" cy="480" rx="40" ry="26" fill="#274a34" opacity="0.28"/>
+      <circle cx="45" cy="465" r="26" fill="url(#canopyBall)"/>
+      <circle cx="80" cy="468" r="28" fill="url(#canopyBall)"/>
+    </g>
+    <g>
+      <ellipse cx="185" cy="520" rx="38" ry="24" fill="#274a34" opacity="0.26"/>
+      <circle cx="170" cy="508" r="24" fill="url(#canopyBall)"/>
+      <circle cx="200" cy="505" r="26" fill="url(#canopyBall)"/>
+    </g>
+  </g>
+
+  <!-- misty light shafts through canopy -->
+  <g fill="#fdf6dd" opacity="0.18">
+    <polygon points="80,0 130,0 40,300 10,300"/>
+    <polygon points="260,0 300,0 220,260 190,260"/>
+  </g>
+
+  <!-- ============ TRANSITION GRASSLAND (center, around North Wall) ============ -->
+  <g stroke="#b7c79f" stroke-width="2" opacity="0.5">
+    <path d="M420,540 C470,530 520,530 570,548"/>
+    <path d="M430,565 C480,555 530,555 580,573"/>
+  </g>
+  <!-- boundary wall -->
+  <path d="M380,470 C450,500 520,520 610,540" fill="none" stroke="#9a9186" stroke-width="6" stroke-dasharray="14 6" opacity="0.6" stroke-linecap="round"/>
+
+  <!-- ============ CONTOUR LINES (topography, whole map) ============ -->
+  <g fill="none" stroke="#c3cdb4" stroke-width="1.5" opacity="0.45">
+    <path d="M60,560 C260,520 460,600 660,560 C860,520 960,580 1150,540"/>
+    <path d="M40,610 C240,570 440,650 640,610 C840,570 940,630 1130,590"/>
+    <path d="M120,660 C320,620 520,700 720,660 C920,620 1020,680 1150,640"/>
+  </g>
+
+  <!-- ============ MAIN DASHED TRAIL ============ -->
+  <path d="M100,150 C260,260 320,380 420,460 C540,550 640,600 760,560 C860,530 940,420 1080,340"
+        fill="none" stroke="#7a7a72" stroke-width="2.5" stroke-dasharray="2 10" stroke-linecap="round" opacity="0.55"/>
+
+  <!-- scattered tree clusters outside dense forest, for texture continuity -->
+  <g fill="#b7c7ae" opacity="0.55">
+    <circle cx="430" cy="700" r="9"/>
+    <circle cx="450" cy="690" r="7"/>
+    <circle cx="415" cy="685" r="6"/>
+  </g>
+
+  <!-- soft vignette border -->
+  <rect x="0" y="0" width="1200" height="800" fill="none" stroke="#d8d4c4" stroke-width="4"/>
+</svg>
