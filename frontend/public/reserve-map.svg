@@ -4,52 +4,143 @@
       <stop offset="0%" stop-color="#eef1e2"/>
       <stop offset="100%" stop-color="#e2e8d2"/>
     </linearGradient>
-    <linearGradient id="forestFloor" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#dbe6c9"/>
-      <stop offset="100%" stop-color="#c9dab2"/>
+    <linearGradient id="swampFloor" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4c5e3c"/>
+      <stop offset="100%" stop-color="#33452a"/>
     </linearGradient>
     <linearGradient id="water" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#a9d2d6"/>
-      <stop offset="45%" stop-color="#7fb8c0"/>
-      <stop offset="100%" stop-color="#4f92a3"/>
+      <stop offset="0%" stop-color="#cdf0e6"/>
+      <stop offset="40%" stop-color="#5cc4c9"/>
+      <stop offset="100%" stop-color="#1f93a6"/>
     </linearGradient>
+    <radialGradient id="pond" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#d8f5ec"/>
+      <stop offset="100%" stop-color="#3fadb8"/>
+    </radialGradient>
     <linearGradient id="heath" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#ded2a8"/>
       <stop offset="100%" stop-color="#cdb97f"/>
     </linearGradient>
     <radialGradient id="sunGlow" cx="30%" cy="15%" r="70%">
-      <stop offset="0%" stop-color="#fff8e0" stop-opacity="0.55"/>
+      <stop offset="0%" stop-color="#fff8e0" stop-opacity="0.5"/>
       <stop offset="100%" stop-color="#fff8e0" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="canopyBall" cx="35%" cy="30%" r="70%">
-      <stop offset="0%" stop-color="#7fae6d"/>
-      <stop offset="100%" stop-color="#3d6b45"/>
-    </radialGradient>
+    <pattern id="swampGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M0,0 H40 M0,0 V40" fill="none" stroke="#6b7f57" stroke-width="1"/>
+    </pattern>
+    <clipPath id="swampClip">
+      <path d="M0,0 L470,0 C450,140 400,220 340,300 C270,392 200,440 120,500 C70,536 30,560 0,580 Z"/>
+    </clipPath>
   </defs>
 
   <rect x="0" y="0" width="1200" height="800" fill="url(#ground)"/>
   <rect x="0" y="0" width="1200" height="800" fill="url(#sunGlow)"/>
 
-  <!-- ============ LAGOON (bottom-right) ============ -->
-  <path d="M1200,800 L620,800 C660,700 700,660 760,610 C840,545 940,500 1060,450 C1110,428 1160,410 1200,398 Z" fill="#e7dcb8"/>
+  <!-- ============ LAGOON (bottom-right, tropical shore) ============ -->
+  <path d="M1200,800 L620,800 C660,700 700,660 760,610 C840,545 940,500 1060,450 C1110,428 1160,410 1200,398 Z" fill="#ecdfb2"/>
   <path d="M1200,800 L660,800 C700,706 745,668 805,618 C880,556 970,512 1080,466 C1125,447 1165,432 1200,420 Z" fill="url(#water)"/>
-  <g stroke="#dff0ef" stroke-width="3" opacity="0.5" fill="none" stroke-linecap="round">
-    <path d="M760,700 C830,672 900,660 970,626"/>
-    <path d="M720,750 C800,718 880,702 960,664"/>
-    <path d="M840,600 C900,578 950,566 1010,538"/>
-    <path d="M900,530 C950,510 995,498 1040,474"/>
+
+  <!-- foam wave lines along the shoreline -->
+  <g stroke="#ffffff" stroke-width="3" opacity="0.65" fill="none" stroke-linecap="round">
+    <path d="M700,706 C750,684 800,672 850,646"/>
+    <path d="M745,668 C800,644 855,628 915,596"/>
+    <path d="M805,618 C860,592 915,576 975,546"/>
+    <path d="M880,556 C935,530 985,516 1040,490"/>
+    <path d="M970,512 C1020,488 1065,474 1115,450"/>
   </g>
+  <g stroke="#eaf7f4" stroke-width="6" opacity="0.35" fill="none" stroke-linecap="round">
+    <path d="M760,740 C820,708 870,690 930,656"/>
+    <path d="M900,600 C950,576 995,558 1045,528"/>
+  </g>
+
+  <!-- small hidden pond ringed by palms, bottom-right corner -->
+  <ellipse cx="1130" cy="700" rx="60" ry="46" fill="url(#pond)"/>
+  <ellipse cx="1130" cy="700" rx="60" ry="46" fill="none" stroke="#eadfb0" stroke-width="10" opacity="0.5"/>
+
+  <!-- reef / sandbar flecks -->
   <g fill="#cdbf8f" opacity="0.8">
-    <ellipse cx="705" cy="742" rx="20" ry="7"/>
-    <ellipse cx="820" cy="676" rx="16" ry="6"/>
-    <ellipse cx="1120" cy="452" rx="18" ry="6"/>
+    <ellipse cx="705" cy="742" rx="16" ry="6"/>
+    <ellipse cx="1040" cy="360" rx="18" ry="6"/>
   </g>
   <g fill="#5c7d4f" opacity="0.85">
-    <ellipse cx="700" cy="735" rx="7" ry="5"/>
-    <ellipse cx="714" cy="740" rx="6" ry="4"/>
-    <ellipse cx="815" cy="670" rx="6" ry="4"/>
-    <ellipse cx="1114" cy="447" rx="6" ry="4"/>
-    <ellipse cx="1127" cy="452" rx="5" ry="4"/>
+    <ellipse cx="700" cy="737" rx="6" ry="4"/>
+    <ellipse cx="1034" cy="356" rx="6" ry="4"/>
+  </g>
+
+  <!-- palm trees scattered along the shore -->
+  <g id="palms">
+    <g transform="translate(700,640)">
+      <path d="M0,0 C-4,-18 2,-34 0,-48" fill="none" stroke="#7a5230" stroke-width="6" stroke-linecap="round"/>
+      <g fill="#3f7d4a">
+        <ellipse cx="0" cy="-50" rx="26" ry="9" transform="rotate(-10 0 -50)"/>
+        <ellipse cx="0" cy="-50" rx="26" ry="9" transform="rotate(35 0 -50)"/>
+        <ellipse cx="0" cy="-50" rx="26" ry="9" transform="rotate(80 0 -50)"/>
+        <ellipse cx="0" cy="-50" rx="24" ry="8" transform="rotate(-55 0 -50)"/>
+        <ellipse cx="0" cy="-50" rx="22" ry="8" transform="rotate(125 0 -50)"/>
+      </g>
+    </g>
+    <g transform="translate(1150,560) scale(0.9)">
+      <path d="M0,0 C4,-18 -2,-34 0,-48" fill="none" stroke="#7a5230" stroke-width="6" stroke-linecap="round"/>
+      <g fill="#438453">
+        <ellipse cx="0" cy="-50" rx="26" ry="9" transform="rotate(-10 0 -50)"/>
+        <ellipse cx="0" cy="-50" rx="26" ry="9" transform="rotate(35 0 -50)"/>
+        <ellipse cx="0" cy="-50" rx="26" ry="9" transform="rotate(80 0 -50)"/>
+        <ellipse cx="0" cy="-50" rx="24" ry="8" transform="rotate(-55 0 -50)"/>
+      </g>
+    </g>
+    <g transform="translate(1080,690) scale(0.8)">
+      <path d="M0,0 C-4,-18 2,-34 0,-48" fill="none" stroke="#7a5230" stroke-width="6" stroke-linecap="round"/>
+      <g fill="#3f7d4a">
+        <ellipse cx="0" cy="-50" rx="26" ry="9" transform="rotate(-10 0 -50)"/>
+        <ellipse cx="0" cy="-50" rx="26" ry="9" transform="rotate(35 0 -50)"/>
+        <ellipse cx="0" cy="-50" rx="26" ry="9" transform="rotate(80 0 -50)"/>
+        <ellipse cx="0" cy="-50" rx="24" ry="8" transform="rotate(-55 0 -50)"/>
+      </g>
+    </g>
+    <g transform="translate(1185,680) scale(0.75)">
+      <path d="M0,0 C4,-18 -2,-34 0,-48" fill="none" stroke="#7a5230" stroke-width="6" stroke-linecap="round"/>
+      <g fill="#438453">
+        <ellipse cx="0" cy="-50" rx="24" ry="8" transform="rotate(-10 0 -50)"/>
+        <ellipse cx="0" cy="-50" rx="24" ry="8" transform="rotate(40 0 -50)"/>
+        <ellipse cx="0" cy="-50" rx="22" ry="8" transform="rotate(90 0 -50)"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- orange flower clusters -->
+  <g id="flowerClusterA" transform="translate(1035,300)">
+    <g fill="#e8862f">
+      <ellipse cx="-14" cy="-4" rx="7" ry="5"/>
+      <ellipse cx="0" cy="-10" rx="7" ry="5"/>
+      <ellipse cx="14" cy="-2" rx="7" ry="5"/>
+      <ellipse cx="-6" cy="8" rx="7" ry="5"/>
+      <ellipse cx="10" cy="10" rx="7" ry="5"/>
+      <ellipse cx="26" cy="-6" rx="6" ry="4"/>
+      <ellipse cx="-22" cy="10" rx="6" ry="4"/>
+    </g>
+    <g fill="#f4a94a">
+      <circle cx="-14" cy="-4" r="2"/>
+      <circle cx="0" cy="-10" r="2"/>
+      <circle cx="14" cy="-2" r="2"/>
+      <circle cx="-6" cy="8" r="2"/>
+      <circle cx="10" cy="10" r="2"/>
+    </g>
+  </g>
+  <g id="flowerClusterB" transform="translate(715,700) scale(0.85)">
+    <g fill="#e8862f">
+      <ellipse cx="-14" cy="-4" rx="7" ry="5"/>
+      <ellipse cx="0" cy="-10" rx="7" ry="5"/>
+      <ellipse cx="14" cy="-2" rx="7" ry="5"/>
+      <ellipse cx="-6" cy="8" rx="7" ry="5"/>
+      <ellipse cx="10" cy="10" rx="7" ry="5"/>
+    </g>
+    <g fill="#f4a94a">
+      <circle cx="-14" cy="-4" r="2"/>
+      <circle cx="0" cy="-10" r="2"/>
+      <circle cx="14" cy="-2" r="2"/>
+      <circle cx="-6" cy="8" r="2"/>
+      <circle cx="10" cy="10" r="2"/>
+    </g>
   </g>
 
   <!-- ============ HEATHLAND (top-right) ============ -->
@@ -74,87 +165,85 @@
     <ellipse cx="1110" cy="95" rx="9" ry="5" transform="rotate(6 1110 95)"/>
   </g>
 
-  <!-- ============ RIVER connecting forest to lagoon ============ -->
+  <!-- ============ RIVER connecting swamp to lagoon ============ -->
   <path d="M120,120 C220,220 260,320 320,390 C400,480 480,520 560,560 C650,606 700,650 700,730"
-        fill="none" stroke="#7fb8c0" stroke-width="26" stroke-linecap="round" opacity="0.85"/>
+        fill="none" stroke="#7c9088" stroke-width="24" stroke-linecap="round" opacity="0.85"/>
   <path d="M120,120 C220,220 260,320 320,390 C400,480 480,520 560,560 C650,606 700,650 700,730"
-        fill="none" stroke="#a9d2d6" stroke-width="10" stroke-linecap="round" opacity="0.7"/>
+        fill="none" stroke="#a9c2b8" stroke-width="9" stroke-linecap="round" opacity="0.7"/>
 
-  <!-- ============ FOREST (left / rainforest canopy) ============ -->
-  <path d="M0,0 L470,0 C450,140 400,220 340,300 C270,392 200,440 120,500 C70,536 30,560 0,580 Z" fill="url(#forestFloor)"/>
+  <!-- ============ WETLANDS (left / mossy swamp, grid battle-map style) ============ -->
+  <path d="M0,0 L470,0 C450,140 400,220 340,300 C270,392 200,440 120,500 C70,536 30,560 0,580 Z" fill="url(#swampFloor)"/>
+  <rect x="0" y="0" width="470" height="580" fill="url(#swampGrid)" clip-path="url(#swampClip)" opacity="0.55"/>
 
-  <!-- canopy clusters: layered blob "trees" for a dense jungle-canopy look -->
-  <g>
-    <!-- cluster 1 -->
-    <g>
-      <ellipse cx="150" cy="120" rx="52" ry="34" fill="#274a34" opacity="0.35"/>
-      <circle cx="120" cy="100" r="34" fill="url(#canopyBall)"/>
-      <circle cx="165" cy="90" r="40" fill="url(#canopyBall)"/>
-      <circle cx="195" cy="120" r="30" fill="url(#canopyBall)"/>
-      <circle cx="140" cy="135" r="28" fill="#588a53"/>
-    </g>
-    <!-- cluster 2 -->
-    <g>
-      <ellipse cx="290" cy="190" rx="58" ry="36" fill="#274a34" opacity="0.32"/>
-      <circle cx="260" cy="165" r="36" fill="url(#canopyBall)"/>
-      <circle cx="310" cy="155" r="42" fill="url(#canopyBall)"/>
-      <circle cx="335" cy="190" r="28" fill="#588a53"/>
-      <circle cx="280" cy="205" r="30" fill="#4c7a49"/>
-    </g>
-    <!-- cluster 3 -->
-    <g>
-      <ellipse cx="90" cy="260" rx="50" ry="32" fill="#274a34" opacity="0.32"/>
-      <circle cx="65" cy="240" r="32" fill="url(#canopyBall)"/>
-      <circle cx="110" cy="235" r="36" fill="url(#canopyBall)"/>
-      <circle cx="120" cy="270" r="26" fill="#588a53"/>
-    </g>
-    <!-- cluster 4 -->
-    <g>
-      <ellipse cx="220" cy="310" rx="56" ry="34" fill="#274a34" opacity="0.32"/>
-      <circle cx="190" cy="290" r="34" fill="url(#canopyBall)"/>
-      <circle cx="240" cy="280" r="40" fill="url(#canopyBall)"/>
-      <circle cx="255" cy="315" r="28" fill="#4c7a49"/>
-      <circle cx="200" cy="325" r="26" fill="#588a53"/>
-    </g>
-    <!-- cluster 5 -->
-    <g>
-      <ellipse cx="360" cy="330" rx="48" ry="30" fill="#274a34" opacity="0.3"/>
-      <circle cx="340" cy="312" r="30" fill="url(#canopyBall)"/>
-      <circle cx="380" cy="308" r="34" fill="url(#canopyBall)"/>
-      <circle cx="385" cy="340" r="24" fill="#588a53"/>
-    </g>
-    <!-- cluster 6 -->
-    <g>
-      <ellipse cx="130" cy="400" rx="54" ry="34" fill="#274a34" opacity="0.32"/>
-      <circle cx="100" cy="382" r="32" fill="url(#canopyBall)"/>
-      <circle cx="150" cy="376" r="38" fill="url(#canopyBall)"/>
-      <circle cx="160" cy="412" r="26" fill="#4c7a49"/>
-      <circle cx="105" cy="418" r="24" fill="#588a53"/>
-    </g>
-    <!-- cluster 7 -->
-    <g>
-      <ellipse cx="260" cy="440" rx="46" ry="28" fill="#274a34" opacity="0.3"/>
-      <circle cx="240" cy="424" r="28" fill="url(#canopyBall)"/>
-      <circle cx="278" cy="420" r="32" fill="url(#canopyBall)"/>
-      <circle cx="280" cy="450" r="22" fill="#588a53"/>
-    </g>
-    <!-- cluster 8 (lower, thinning edge) -->
-    <g>
-      <ellipse cx="60" cy="480" rx="40" ry="26" fill="#274a34" opacity="0.28"/>
-      <circle cx="45" cy="465" r="26" fill="url(#canopyBall)"/>
-      <circle cx="80" cy="468" r="28" fill="url(#canopyBall)"/>
-    </g>
-    <g>
-      <ellipse cx="185" cy="520" rx="38" ry="24" fill="#274a34" opacity="0.26"/>
-      <circle cx="170" cy="508" r="24" fill="url(#canopyBall)"/>
-      <circle cx="200" cy="505" r="26" fill="url(#canopyBall)"/>
-    </g>
+  <!-- boulder cluster, top-left -->
+  <g fill="#8a8f82">
+    <circle cx="40" cy="50" r="22"/>
+    <circle cx="70" cy="35" r="16"/>
+    <circle cx="30" cy="25" r="12"/>
+  </g>
+  <g fill="#6f746a">
+    <circle cx="40" cy="50" r="22" opacity="0.3"/>
   </g>
 
-  <!-- misty light shafts through canopy -->
-  <g fill="#fdf6dd" opacity="0.18">
-    <polygon points="80,0 130,0 40,300 10,300"/>
-    <polygon points="260,0 300,0 220,260 190,260"/>
+  <!-- wooden hut, top-left -->
+  <g transform="translate(370,55)">
+    <rect x="-24" y="-4" width="48" height="34" fill="#6b4a34" rx="2"/>
+    <polygon points="-30,-4 30,-4 0,-34" fill="#3c2a1e"/>
+    <rect x="-6" y="10" width="12" height="20" fill="#4a3527"/>
+    <rect x="-32" y="8" width="10" height="14" fill="#8a6a4a" opacity="0.85"/>
+  </g>
+
+  <!-- winding stream with lily pads and stones -->
+  <path d="M20,480 C90,440 110,500 90,540 C70,580 140,600 200,560 C260,522 220,470 280,450 C320,436 360,450 380,420"
+        fill="none" stroke="#6f8478" stroke-width="26" stroke-linecap="round" opacity="0.9"/>
+  <path d="M20,480 C90,440 110,500 90,540 C70,580 140,600 200,560 C260,522 220,470 280,450 C320,436 360,450 380,420"
+        fill="none" stroke="#9db6ab" stroke-width="9" stroke-linecap="round" opacity="0.7"/>
+
+  <g fill="#8a8f82">
+    <circle cx="150" cy="518" r="10"/>
+    <circle cx="165" cy="528" r="6"/>
+    <circle cx="230" cy="545" r="9"/>
+    <circle cx="300" cy="440" r="8"/>
+    <circle cx="312" cy="450" r="5"/>
+  </g>
+
+  <g id="lilypad">
+    <ellipse cx="0" cy="0" rx="15" ry="9" fill="#4f7a48"/>
+    <ellipse cx="0" cy="0" rx="15" ry="9" fill="none" stroke="#37552f" stroke-width="2"/>
+    <path d="M0,0 L15,0" stroke="#37552f" stroke-width="1.5"/>
+  </g>
+  <use href="#lilypad" x="70" y="470"/>
+  <use href="#lilypad" x="120" y="560" transform="rotate(20 120 560)"/>
+  <use href="#lilypad" x="250" y="500" transform="rotate(-15 250 500)"/>
+  <use href="#lilypad" x="350" y="430" transform="rotate(35 350 430)"/>
+
+  <!-- moss bushes -->
+  <g id="mossBush">
+    <ellipse cx="0" cy="4" rx="26" ry="12" fill="#2c3a22" opacity="0.4"/>
+    <circle cx="-10" cy="-6" r="16" fill="#5c7a4a"/>
+    <circle cx="10" cy="-8" r="18" fill="#527049"/>
+    <circle cx="0" cy="-14" r="14" fill="#688a54"/>
+  </g>
+  <use href="#mossBush" x="130" y="140"/>
+  <use href="#mossBush" x="260" y="200" transform="rotate(8 260 200)"/>
+  <use href="#mossBush" x="200" y="330" transform="rotate(-6 200 330)"/>
+  <use href="#mossBush" x="90" y="330"/>
+  <use href="#mossBush" x="340" y="300" transform="scale(0.85)"/>
+  <use href="#mossBush" x="150" y="440" transform="scale(0.8)"/>
+
+  <!-- tiny mushroom / flower accents -->
+  <g fill="#c2452f">
+    <circle cx="245" cy="620" r="6"/>
+    <circle cx="180" cy="650" r="5"/>
+  </g>
+  <g fill="#f0f0e8">
+    <circle cx="243" cy="618" r="1.4"/>
+    <circle cx="247" cy="621" r="1.2"/>
+    <circle cx="178" cy="648" r="1.2"/>
+  </g>
+  <g fill="#d9c04a">
+    <circle cx="330" cy="560" r="5"/>
+    <circle cx="60" cy="220" r="4"/>
   </g>
 
   <!-- ============ TRANSITION GRASSLAND (center, around North Wall) ============ -->
@@ -166,22 +255,15 @@
   <path d="M380,470 C450,500 520,520 610,540" fill="none" stroke="#9a9186" stroke-width="6" stroke-dasharray="14 6" opacity="0.6" stroke-linecap="round"/>
 
   <!-- ============ CONTOUR LINES (topography, whole map) ============ -->
-  <g fill="none" stroke="#c3cdb4" stroke-width="1.5" opacity="0.45">
-    <path d="M60,560 C260,520 460,600 660,560 C860,520 960,580 1150,540"/>
-    <path d="M40,610 C240,570 440,650 640,610 C840,570 940,630 1130,590"/>
-    <path d="M120,660 C320,620 520,700 720,660 C920,620 1020,680 1150,640"/>
+  <g fill="none" stroke="#c3cdb4" stroke-width="1.5" opacity="0.4">
+    <path d="M480,560 C560,540 620,590 700,570 C820,540 900,590 1000,560"/>
+    <path d="M500,610 C580,590 640,640 720,620 C840,590 920,640 1020,610"/>
+    <path d="M520,660 C600,640 660,690 740,670 C860,640 940,690 1040,660"/>
   </g>
 
   <!-- ============ MAIN DASHED TRAIL ============ -->
   <path d="M100,150 C260,260 320,380 420,460 C540,550 640,600 760,560 C860,530 940,420 1080,340"
-        fill="none" stroke="#7a7a72" stroke-width="2.5" stroke-dasharray="2 10" stroke-linecap="round" opacity="0.55"/>
-
-  <!-- scattered tree clusters outside dense forest, for texture continuity -->
-  <g fill="#b7c7ae" opacity="0.55">
-    <circle cx="430" cy="700" r="9"/>
-    <circle cx="450" cy="690" r="7"/>
-    <circle cx="415" cy="685" r="6"/>
-  </g>
+        fill="none" stroke="#8a8f7c" stroke-width="2.5" stroke-dasharray="2 10" stroke-linecap="round" opacity="0.6"/>
 
   <!-- soft vignette border -->
   <rect x="0" y="0" width="1200" height="800" fill="none" stroke="#d8d4c4" stroke-width="4"/>

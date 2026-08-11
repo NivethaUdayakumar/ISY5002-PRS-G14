@@ -425,7 +425,7 @@ export default function ReserveMapModal({ open, onClose, initialLocationId }) {
               <div
                 className="absolute inset-0"
                 style={{
-                  backgroundImage: "url('/reserve-map.svg')",
+                  backgroundImage: `url('${selectedLocation?.mapImage || '/reserve-map.svg'}')`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                 }}

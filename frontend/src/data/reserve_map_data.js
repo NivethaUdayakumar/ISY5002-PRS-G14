@@ -13,24 +13,27 @@ export const locations = [
     id: 'wetlands',
     name: 'Wetlands',
     description: 'Island Mere Trail — reedbed & open water',
+    mapImage: '/reserve-map-wetlands.svg',
     cameras: [
-      { id: 'C1', name: 'Island Mere', x: 14, y: 24 },
-      { id: 'C2', name: 'Bittern Hide', x: 30, y: 42 },
+      { id: 'C1', name: 'Island Mere', x: 40, y: 42 },
+      { id: 'C2', name: 'Bittern Hide', x: 60, y: 55 },
     ],
   },
   {
     id: 'coastal-lagoons',
     name: 'Coastal Lagoons',
     description: 'The Scrape — shingle & shallow lagoons',
+    mapImage: '/reserve-map-lagoon.svg',
     cameras: [
-      { id: 'C3', name: 'Scrape East', x: 68, y: 60 },
-      { id: 'C4', name: 'Sluice', x: 84, y: 76 },
+      { id: 'C3', name: 'Scrape East', x: 41, y: 44 },
+      { id: 'C4', name: 'Sluice', x: 60, y: 58 },
     ],
   },
   {
     id: 'heathland',
     name: 'Heathland',
     description: 'Whin Hill — dry heath & scrub',
+    mapImage: '/reserve-map.svg',
     cameras: [
       { id: 'C5', name: 'Whin Hill', x: 70, y: 22 },
       { id: 'C6', name: 'North Wall', x: 48, y: 52 },

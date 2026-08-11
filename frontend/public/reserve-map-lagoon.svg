@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <linearGradient id="sea" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1f8fa0"/>
+      <stop offset="100%" stop-color="#146e82"/>
+    </linearGradient>
+    <linearGradient id="lagoonWater" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d8f5ec"/>
+      <stop offset="45%" stop-color="#5cc4c9"/>
+      <stop offset="100%" stop-color="#1f93a6"/>
+    </linearGradient>
+    <radialGradient id="pond" cx="38%" cy="34%" r="68%">
+      <stop offset="0%" stop-color="#e6faf2"/>
+      <stop offset="100%" stop-color="#3fadb8"/>
+    </radialGradient>
+    <linearGradient id="grass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7fae5a"/>
+      <stop offset="100%" stop-color="#5f9345"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="28%" cy="14%" r="65%">
+      <stop offset="0%" stop-color="#fff8e0" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#fff8e0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vignette" cx="50%" cy="48%" r="72%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="78%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#06323a" stop-opacity="0.4"/>
+    </radialGradient>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="800" fill="url(#sea)"/>
+  <g stroke="#eaf7f4" stroke-width="2.5" opacity="0.35" fill="none" stroke-linecap="round">
+    <path d="M0,60 C80,50 140,70 220,58"/>
+    <path d="M980,20 C1060,32 1120,14 1200,26"/>
+    <path d="M20,760 C100,748 160,768 240,754"/>
+    <path d="M960,780 C1040,768 1100,786 1200,772"/>
+  </g>
+
+  <!-- island landmass: sandy ring + green interior -->
+  <path d="M600,50 C760,44 900,90 990,170 C1090,258 1130,360 1120,470
+           C1110,580 1030,660 920,710 C800,764 660,772 540,750
+           C420,728 300,690 210,610 C120,530 90,420 120,320
+           C154,208 260,120 380,80 C450,56 520,54 600,50 Z"
+        fill="#ecdfb2"/>
+  <path d="M600,80 C748,74 872,116 954,188 C1044,266 1080,356 1070,456
+           C1060,556 990,628 890,672 C782,718 656,726 548,706
+           C440,686 332,652 252,582 C172,512 146,414 174,326
+           C204,232 300,154 408,116 C470,94 534,84 600,80 Z"
+        fill="url(#grass)"/>
+
+  <!-- foam wave lines along the sand/water boundary -->
+  <g stroke="#ffffff" stroke-width="3" opacity="0.55" fill="none" stroke-linecap="round">
+    <path d="M640,52 C740,50 840,72 920,120"/>
+    <path d="M980,190 C1030,240 1060,300 1070,360"/>
+    <path d="M1095,500 C1075,570 1030,630 960,672"/>
+    <path d="M760,742 C660,762 550,760 460,738"/>
+    <path d="M300,690 C220,650 160,590 130,510"/>
+    <path d="M130,340 C150,260 200,190 270,140"/>
+  </g>
+
+  <!-- winding dirt path -->
+  <path d="M400,110 C440,180 420,250 470,310 C520,370 610,380 620,450 C630,520 560,560 600,630"
+        fill="none" stroke="#d8c48c" stroke-width="14" stroke-linecap="round" opacity="0.8"/>
+
+  <!-- ruins, upper-left of the island -->
+  <g transform="translate(300,220)" fill="#cfc9b6">
+    <rect x="-46" y="-6" width="14" height="70" rx="4"/>
+    <rect x="-14" y="-16" width="14" height="80" rx="4"/>
+    <rect x="18" y="-4" width="14" height="68" rx="4"/>
+    <rect x="46" y="4" width="14" height="60" rx="4"/>
+    <rect x="-56" y="60" width="128" height="10" rx="3" opacity="0.8"/>
+  </g>
+
+  <!-- cottage clusters -->
+  <g id="cottage">
+    <rect x="-20" y="-2" width="40" height="30" fill="#efe6cf" rx="2"/>
+    <polygon points="-26,-2 26,-2 0,-26" fill="#c05a3a"/>
+    <rect x="-6" y="10" width="12" height="18" fill="#8a5a35"/>
+    <rect x="10" y="6" width="8" height="8" fill="#7fb8c0" opacity="0.8"/>
+  </g>
+  <g transform="translate(430,260)"><use href="#cottage"/></g>
+  <g transform="translate(478,246) scale(0.85)"><use href="#cottage"/></g>
+  <g transform="translate(370,300) scale(0.8)"><use href="#cottage"/></g>
+
+  <!-- lighthouse, upper-right rocky point -->
+  <g transform="translate(940,150)">
+    <ellipse cx="0" cy="34" rx="70" ry="26" fill="#9a8f7c"/>
+    <ellipse cx="0" cy="30" rx="55" ry="20" fill="#8a7d68"/>
+    <rect x="-14" y="-70" width="28" height="80" fill="#f4ede0"/>
+    <rect x="-14" y="-70" width="28" height="14" fill="#c0433a"/>
+    <rect x="-14" y="-42" width="28" height="14" fill="#c0433a"/>
+    <rect x="-14" y="-14" width="28" height="14" fill="#c0433a"/>
+    <rect x="-18" y="-92" width="36" height="24" fill="#3a3a3a" rx="3"/>
+    <polygon points="-18,-92 18,-92 0,-112" fill="#c0433a"/>
+    <line x1="0" y1="-112" x2="0" y2="-126" stroke="#3a3a3a" stroke-width="3"/>
+  </g>
+
+  <!-- orange flower clusters -->
+  <g id="flowerCluster" fill="#e8862f">
+    <ellipse cx="-14" cy="-4" rx="7" ry="5"/>
+    <ellipse cx="0" cy="-10" rx="7" ry="5"/>
+    <ellipse cx="14" cy="-2" rx="7" ry="5"/>
+    <ellipse cx="-6" cy="8" rx="7" ry="5"/>
+    <ellipse cx="10" cy="10" rx="7" ry="5"/>
+    <ellipse cx="26" cy="-6" rx="6" ry="4"/>
+    <ellipse cx="-22" cy="10" rx="6" ry="4"/>
+  </g>
+  <g fill="#f4a94a">
+    <circle cx="0" cy="0" r="0" opacity="0"/>
+  </g>
+  <g transform="translate(260,420)"><use href="#flowerCluster"/><g fill="#f4a94a"><circle cx="246" cy="416" r="2"/></g></g>
+  <g transform="translate(760,600) scale(0.9)"><use href="#flowerCluster"/></g>
+  <g transform="translate(880,560) scale(0.75)"><use href="#flowerCluster"/></g>
+  <g transform="translate(420,560) scale(0.8)"><use href="#flowerCluster"/></g>
+
+  <!-- central lagoon pond ringed by palm trees -->
+  <ellipse cx="620" cy="470" rx="120" ry="92" fill="url(#lagoonWater)"/>
+  <ellipse cx="620" cy="470" rx="120" ry="92" fill="url(#pond)" opacity="0.55"/>
+  <ellipse cx="620" cy="470" rx="120" ry="92" fill="none" stroke="#ecdfb2" stroke-width="14" opacity="0.6"/>
+  <g stroke="#ffffff" stroke-width="2" opacity="0.5" fill="none" stroke-linecap="round">
+    <path d="M560,440 C590,428 630,428 660,442"/>
+    <path d="M550,500 C590,516 640,516 682,498"/>
+  </g>
+
+  <g id="palm">
+    <path d="M0,0 C-5,-20 3,-38 0,-54" fill="none" stroke="#7a5230" stroke-width="7" stroke-linecap="round"/>
+    <g fill="#3f7d4a">
+      <ellipse cx="0" cy="-56" rx="30" ry="10" transform="rotate(-10 0 -56)"/>
+      <ellipse cx="0" cy="-56" rx="30" ry="10" transform="rotate(35 0 -56)"/>
+      <ellipse cx="0" cy="-56" rx="30" ry="10" transform="rotate(80 0 -56)"/>
+      <ellipse cx="0" cy="-56" rx="27" ry="9" transform="rotate(-55 0 -56)"/>
+      <ellipse cx="0" cy="-56" rx="25" ry="9" transform="rotate(125 0 -56)"/>
+    </g>
+  </g>
+  <g transform="translate(510,530) scale(0.9)"><use href="#palm"/></g>
+  <g transform="translate(560,398) scale(0.8)"><use href="#palm"/></g>
+  <g transform="translate(730,520)"><use href="#palm"/></g>
+  <g transform="translate(700,420) scale(0.85)"><use href="#palm"/></g>
+
+  <!-- standalone shoreline palms -->
+  <g transform="translate(240,560) scale(0.9)"><use href="#palm"/></g>
+  <g transform="translate(950,620) scale(1.05)"><use href="#palm"/></g>
+  <g transform="translate(980,300) scale(0.8)"><use href="#palm"/></g>
+
+  <rect x="0" y="0" width="1200" height="800" fill="url(#sunGlow)"/>
+  <rect x="0" y="0" width="1200" height="800" fill="url(#vignette)"/>
+  <rect x="0" y="0" width="1200" height="800" fill="none" stroke="#0d4652" stroke-width="6"/>
+</svg>
