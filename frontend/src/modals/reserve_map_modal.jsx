@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
+import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Bird, PawPrint, CircleHelp, Video, Bookmark, Check, Plus, Trash2, Search, ZoomOut } from 'lucide-react';
 import {
   locations,
@@ -7,6 +9,8 @@ import {
   initialCollections,
   sightingsForCamera,
   sightingsForLocation,
+  locationCenter,
+  RESERVE_CENTER,
   CLASS_META,
 } from '../data/reserve_map_data';
 import { ModalOverlay, ModalCard, ModalHeader } from '../components/modal';
@@ -18,7 +22,10 @@ const CLOSE_CLASSNAME_SM = 'rounded-full bg-[#f0f0f0] p-1.5 text-[#1e1e1e] trans
 
 const RING_RADIUS_PX = 36;
 const MAX_RING_PINS = 5;
-const ZOOM_SCALE = 2.2;
+
+const RESERVE_ZOOM = 15;
+const LOCATION_ZOOM = 16;
+const CAMERA_ZOOM = 18;
 
 const CLASS_ICONS = { Bird, PawPrint, CircleHelp };
 
@@ -48,6 +55,69 @@ function uniqueRingSightings(sightingList, cameraId) {
     if (unique.length >= MAX_RING_PINS) break;
   }
   return unique;
+}
+
+function MarkersOverlay({ cameras: cameraList, sightingList, zoomedCameraId, onOpenCamera, onOpenSighting }) {
+  const map = useMap();
+  const [, forceRender] = useState(0);
+
+  useEffect(() => {
+    const rerender = () => forceRender((n) => n + 1);
+    map.on('move zoom resize', rerender);
+    rerender();
+    return () => map.off('move zoom resize', rerender);
+  }, [map]);
+
+  return (
+    <div className="pointer-events-none absolute inset-0 z-[500]">
+      {cameraList.map((camera) => {
+        const point = map.latLngToContainerPoint([camera.lat, camera.lng]);
+        const ring = uniqueRingSightings(sightingList, camera.id);
+        const offsets = ringOffsets(ring.length);
+        const isZoomed = zoomedCameraId === camera.id;
+        return (
+          <div key={camera.id} className="contents">
+            {ring.map((sighting, i) => {
+              const meta = CLASS_META[sighting.class] || CLASS_META.Unknown;
+              const { dx, dy } = offsets[i];
+              return (
+                <button
+                  key={sighting.id}
+                  type="button"
+                  onClick={() => onOpenSighting(sighting)}
+                  className="group pointer-events-auto absolute z-20 flex h-5 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white shadow-sm transition hover:scale-110"
+                  style={{
+                    left: `${point.x + dx}px`,
+                    top: `${point.y + dy}px`,
+                    backgroundColor: meta.color,
+                  }}
+                  aria-label={sighting.species}
+                >
+                  <ClassIcon cls={sighting.class} size={10} />
+                  <span className="pointer-events-none absolute bottom-full left-1/2 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#1e1e1e] px-2 py-1 text-[11px] font-medium text-white opacity-0 shadow-lg transition group-hover:opacity-100">
+                    {sighting.species}
+                  </span>
+                </button>
+              );
+            })}
+
+            <button
+              type="button"
+              onClick={() => onOpenCamera(camera)}
+              className={`pointer-events-auto absolute z-30 flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 text-[11px] font-semibold text-white shadow-md transition hover:scale-110 ${
+                isZoomed ? 'border-[#ffb020]' : 'border-white'
+              } bg-[#1e1e1e]`}
+              style={{ left: `${point.x}px`, top: `${point.y}px` }}
+              aria-label={`Open live view for ${camera.name}`}
+              title={`${camera.id} · ${camera.name}`}
+            >
+              {camera.id}
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 function SightingThumbnail({ cls, saved }) {
@@ -264,6 +334,7 @@ export default function ReserveMapModal({ open, onClose, initialLocationId }) {
   const [sightingList, setSightingList] = useState(initialSightings);
   const [collections, setCollections] = useState(initialCollections);
   const [zoomedCameraId, setZoomedCameraId] = useState(null);
+  const [map, setMap] = useState(null);
 
   useEffect(() => {
     if (open) {
@@ -273,6 +344,14 @@ export default function ReserveMapModal({ open, onClose, initialLocationId }) {
       setZoomedCameraId(null);
     }
   }, [open, initialLocationId]);
+
+  useEffect(() => {
+    if (!map || !open) return;
+    const startLocation = locations.find((location) => location.id === (initialLocationId || locations[0]?.id));
+    if (!startLocation) return;
+    const center = locationCenter(startLocation);
+    map.setView([center.lat, center.lng], LOCATION_ZOOM);
+  }, [map, open, initialLocationId]);
 
   const selectedLocation = useMemo(
     () => locations.find((location) => location.id === selectedLocationId) || locations[0],
@@ -309,12 +388,19 @@ export default function ReserveMapModal({ open, onClose, initialLocationId }) {
   function handleZoomSelect(cameraId) {
     if (!cameraId) {
       setZoomedCameraId(null);
+      if (map && selectedLocation) {
+        const center = locationCenter(selectedLocation);
+        map.flyTo([center.lat, center.lng], LOCATION_ZOOM);
+      }
       return;
     }
     const camera = cameras.find((item) => item.id === cameraId);
     if (!camera) return;
     setSelectedLocationId(camera.locationId);
     setZoomedCameraId(cameraId);
+    if (map) {
+      map.flyTo([camera.lat, camera.lng], CAMERA_ZOOM);
+    }
   }
 
   function openCamera(camera) {
@@ -378,73 +464,28 @@ export default function ReserveMapModal({ open, onClose, initialLocationId }) {
 
         <div className="flex min-h-0 flex-1">
           <div className="relative min-w-0 flex-1 overflow-hidden">
-            <div
-              className="absolute inset-0 transition-transform duration-500 ease-out"
-              style={
-                zoomedCamera
-                  ? {
-                      transformOrigin: `${zoomedCamera.x}% ${zoomedCamera.y}%`,
-                      transform: `translate(${50 - zoomedCamera.x}%, ${50 - zoomedCamera.y}%) scale(${ZOOM_SCALE})`,
-                    }
-                  : undefined
-              }
+            <MapContainer
+              ref={setMap}
+              center={[RESERVE_CENTER.lat, RESERVE_CENTER.lng]}
+              zoom={RESERVE_ZOOM}
+              minZoom={13}
+              className="absolute inset-0 isolate"
+              zoomControl={false}
             >
-              <div
-                className="absolute inset-0"
-                style={{
-                  backgroundImage: `url('${selectedLocation?.mapImage || '/reserve-map.svg'}')`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }}
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
+              <MarkersOverlay
+                cameras={cameras}
+                sightingList={sightingList}
+                zoomedCameraId={zoomedCameraId}
+                onOpenCamera={openCamera}
+                onOpenSighting={openSighting}
+              />
+            </MapContainer>
 
-              {visibleCameras.map((camera) => {
-                const ring = uniqueRingSightings(sightingList, camera.id);
-                const offsets = ringOffsets(ring.length);
-                return (
-                  <div key={camera.id} className="contents">
-                    {ring.map((sighting, i) => {
-                      const meta = CLASS_META[sighting.class] || CLASS_META.Unknown;
-                      const { dx, dy } = offsets[i];
-                      return (
-                        <button
-                          key={sighting.id}
-                          type="button"
-                          onClick={() => openSighting(sighting)}
-                          className="group absolute z-20 flex h-5 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white shadow-sm transition hover:scale-110"
-                          style={{
-                            left: `calc(${camera.x}% + ${dx}px)`,
-                            top: `calc(${camera.y}% + ${dy}px)`,
-                            backgroundColor: meta.color,
-                          }}
-                          aria-label={sighting.species}
-                        >
-                          <ClassIcon cls={sighting.class} size={10} />
-                          <span
-                            className="pointer-events-none absolute bottom-full left-1/2 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#1e1e1e] px-2 py-1 text-[11px] font-medium text-white opacity-0 shadow-lg transition group-hover:opacity-100"
-                          >
-                            {sighting.species}
-                          </span>
-                        </button>
-                      );
-                    })}
-
-                    <button
-                      type="button"
-                      onClick={() => openCamera(camera)}
-                      className="absolute z-30 flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-[#1e1e1e] text-[11px] font-semibold text-white shadow-md transition hover:scale-110"
-                      style={{ left: `${camera.x}%`, top: `${camera.y}%` }}
-                      aria-label={`Open live view for ${camera.name}`}
-                      title={`${camera.id} · ${camera.name}`}
-                    >
-                      {camera.id}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="absolute left-3 top-3 z-40 flex items-center gap-2">
+            <div className="absolute left-3 top-3 z-[600] flex items-center gap-2">
               <div className="flex items-center gap-1.5 rounded-full border border-[#e6e6e6] bg-white/95 px-3 py-1.5 shadow-sm backdrop-blur-sm">
                 <Search size={13} color="#6b6b6b" />
                 <select
@@ -471,10 +512,6 @@ export default function ReserveMapModal({ open, onClose, initialLocationId }) {
                   Full map
                 </PillButton>
               )}
-            </div>
-
-            <div className="absolute bottom-3 left-3 z-10 rounded-full border border-[#e6e6e6] bg-white/85 px-3 py-1 text-[11px] text-gray-500 backdrop-blur-sm">
-              Placeholder map — not the real reserve survey map
             </div>
 
             <CameraLiveViewLightbox camera={liveViewCamera} onClose={() => setLiveViewCamera(null)} />

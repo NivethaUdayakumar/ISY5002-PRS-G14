@@ -13,30 +13,27 @@ export const locations = [
     id: 'wetlands',
     name: 'Wetlands',
     description: 'Island Mere Trail — reedbed & open water',
-    mapImage: '/reserve-map-wetlands.svg',
     cameras: [
-      { id: 'C1', name: 'Island Mere', x: 40, y: 42 },
-      { id: 'C2', name: 'Bittern Hide', x: 60, y: 55 },
+      { id: 'C1', name: 'Island Mere', lat: 52.2372, lng: 1.6108 },
+      { id: 'C2', name: 'Bittern Hide', lat: 52.2352, lng: 1.6135 },
     ],
   },
   {
     id: 'coastal-lagoons',
     name: 'Coastal Lagoons',
     description: 'The Scrape — shingle & shallow lagoons',
-    mapImage: '/reserve-map-lagoon.svg',
     cameras: [
-      { id: 'C3', name: 'Scrape East', x: 41, y: 44 },
-      { id: 'C4', name: 'Sluice', x: 60, y: 58 },
+      { id: 'C3', name: 'Scrape East', lat: 52.2445, lng: 1.623 },
+      { id: 'C4', name: 'Sluice', lat: 52.2461, lng: 1.6248 },
     ],
   },
   {
     id: 'heathland',
     name: 'Heathland',
     description: 'Whin Hill — dry heath & scrub',
-    mapImage: '/reserve-map.svg',
     cameras: [
-      { id: 'C5', name: 'Whin Hill', x: 70, y: 22 },
-      { id: 'C6', name: 'North Wall', x: 48, y: 52 },
+      { id: 'C5', name: 'Whin Hill', lat: 52.2458, lng: 1.61 },
+      { id: 'C6', name: 'North Wall', lat: 52.2478, lng: 1.6165 },
     ],
   },
 ];
@@ -44,6 +41,14 @@ export const locations = [
 export const cameras = locations.flatMap((location) =>
   location.cameras.map((camera) => ({ ...camera, locationId: location.id, locationName: location.name })),
 );
+
+export function locationCenter(location) {
+  const lat = location.cameras.reduce((sum, camera) => sum + camera.lat, 0) / location.cameras.length;
+  const lng = location.cameras.reduce((sum, camera) => sum + camera.lng, 0) / location.cameras.length;
+  return { lat, lng };
+}
+
+export const RESERVE_CENTER = { lat: 52.2417, lng: 1.6183 };
 
 export const initialSightings = [
   // Island Mere (C1)
