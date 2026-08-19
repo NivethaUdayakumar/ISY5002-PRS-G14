@@ -7,23 +7,23 @@ const OFFSET_TICK_INTERVAL_MS = 1000;
 
 const areas = [
   {
-    name: "Wetlands",
-    location: "Island Mere Trail — reedbed & open water",
+    name: "Sonian Forest",
+    location: "Belgium",
     cameraCount: 2,
     cameras: [
       {
         id: "camera_01",
-        name: "Island Mere",
+        name: "Camera 01",
         sightingsToday: 8,
       },
       {
         id: "camera_02",
-        name: "Bittern Hide",
+        name: "Camera 02",
         sightingsToday: 5,
       },
       {
         id: "camera_03",
-        name: "Bittern Hide",
+        name: "Camera 03",
         sightingsToday: 3,
       },
     ],
@@ -194,10 +194,6 @@ export default function CameraPage() {
 
   return (
     <div className="p-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Live cameras</h1>
-        <p className="mt-1 text-sm text-gray-500">3 areas · 6 online</p>
-      </div>
 
       <div className="space-y-10">
         {areas.map((area) => (

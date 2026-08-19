@@ -2,6 +2,7 @@ import { useState } from 'react'
 import './App.css'
 import MainLayout from './layouts/main_layout'
 import CameraPage from './pages/camera_page'
+import CollectionPage from './pages/collection_page'
 import {
   BrowserRouter,
   Routes,
@@ -16,6 +17,7 @@ function App() {
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<CameraPage />} />
+          <Route path="/collections" element={<CollectionPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
