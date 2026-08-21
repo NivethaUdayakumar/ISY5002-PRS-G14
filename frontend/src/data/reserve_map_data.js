@@ -11,7 +11,7 @@ export const CLASS_META = {
 export const locations = [
   {
     id: 'wetlands',
-    name: 'Wetlands',
+    name: 'Sonian Forest',
     description: 'Island Mere Trail — reedbed & open water',
     cameras: [
       { id: 'C1', name: 'Island Mere', lat: 52.2372, lng: 1.6108 },

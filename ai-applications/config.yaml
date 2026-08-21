@@ -1,0 +1,113 @@
+# WildGuard dataset download + training configuration.
+# Shared by download_dataset.py and train_yolo.py.
+
+model:
+  base_weights: "yolov8n.pt"          # starting point for fine-tuning / live inference fallback
+  finetuned_weights: "wildlife_yolov8.pt"  # produced by train_yolo.py; live inference prefers this if present
+  confidence_threshold: 0.5
+  device: "cpu"                        # "cpu" or a CUDA device index, e.g. "0"
+
+dataset:
+  source: "iNaturalist"
+  api_base_url: "https://api.inaturalist.org/v1"
+  download_path: "./ai-applications/wildlife_dataset"
+  images_per_species_min: 500
+  images_per_species_max: 1000
+  requests_per_minute: 55              # stays under iNaturalist's ~60/min limit
+  train_val_test_split: [0.8, 0.1, 0.1]
+  filters:
+    quality_grade: "research"
+    min_resolution: 500
+    license: ["CC0", "CC-BY-NC", "CC-BY", "CC-BY-NC-SA"]
+
+  # iNaturalist gives whole-image species labels, not bounding boxes. To turn
+  # that into YOLO detection labels, download_dataset.py runs the base COCO
+  # detector (yolov8n.pt) on each downloaded image and keeps its best generic
+  # box as a pseudo-label for the queried species. This is a standard weak-
+  # supervision workaround, not manual annotation — expect noisier labels
+  # than a hand-annotated dataset, especially for camouflaged or small
+  # animals. Review a sample of generated labels before training on them.
+  pseudo_label_fallback_full_image: true  # if the base detector finds nothing, label the whole image
+
+  species:
+    # Big cats
+    - name: lion
+      common_names: ["Lion", "African lion"]
+    - name: tiger
+      common_names: ["Tiger"]
+    - name: leopard
+      common_names: ["Leopard"]
+    - name: cheetah
+      common_names: ["Cheetah"]
+    - name: cougar
+      common_names: ["Cougar", "Mountain lion", "Puma"]
+    # Hoofed animals
+    - name: zebra
+      common_names: ["Zebra", "Plains zebra"]
+    - name: elk
+      common_names: ["Elk", "Wapiti"]
+    - name: moose
+      common_names: ["Moose"]
+    - name: antelope
+      common_names: ["Antelope", "Impala", "Gazelle"]
+    - name: giraffe
+      common_names: ["Giraffe"]
+    - name: wildebeest
+      common_names: ["Wildebeest", "Gnu"]
+    # Bears
+    - name: grizzly_bear
+      common_names: ["Grizzly Bear", "Brown Bear"]
+    - name: black_bear
+      common_names: ["American Black Bear"]
+    - name: polar_bear
+      common_names: ["Polar Bear"]
+    - name: panda
+      common_names: ["Giant Panda"]
+    # Primates
+    - name: gorilla
+      common_names: ["Gorilla"]
+    - name: chimpanzee
+      common_names: ["Chimpanzee"]
+    - name: monkey
+      common_names: ["Monkey", "Vervet Monkey", "Macaque"]
+    - name: baboon
+      common_names: ["Baboon"]
+    # Birds
+    - name: eagle
+      common_names: ["Eagle", "Bald Eagle", "Golden Eagle"]
+    - name: hawk
+      common_names: ["Hawk", "Red-tailed Hawk"]
+    - name: owl
+      common_names: ["Owl", "Barn Owl", "Great Horned Owl"]
+    - name: parrot
+      common_names: ["Parrot"]
+    - name: ostrich
+      common_names: ["Ostrich", "Common Ostrich"]
+    - name: flamingo
+      common_names: ["Flamingo", "Greater Flamingo"]
+    # Canines
+    - name: wolf
+      common_names: ["Wolf", "Gray Wolf"]
+    - name: fox
+      common_names: ["Fox", "Red Fox"]
+    - name: wild_dog
+      common_names: ["African Wild Dog", "Painted Dog"]
+    # Other
+    - name: hippopotamus
+      common_names: ["Hippopotamus", "Hippo"]
+    - name: rhinoceros
+      common_names: ["Rhinoceros", "White Rhinoceros", "Black Rhinoceros"]
+    - name: crocodile
+      common_names: ["Crocodile", "Nile Crocodile"]
+    - name: snake
+      common_names: ["Snake"]
+
+training:
+  model_variant: "yolov8n"   # yolov8n | yolov8s | yolov8m
+  epochs: 100
+  batch_size: 16
+  img_size: 640
+  patience: 20
+  device: "cpu"
+  output_dir: "./ai-applications/runs"
+  run_name: "wildlife_yolov8"

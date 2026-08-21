@@ -54,36 +54,54 @@ const areas = [
 
 function CameraCard({ camera, offset }) {
   const [frameSrc, setFrameSrc] = useState();
+  const [detections, setDetections] = useState([]);
   const prevUrlRef = useRef(null);
+  const requestIdRef = useRef(0);
+  const appliedRequestIdRef = useRef(0);
+  const mountedRef = useRef(true);
 
-  // Refetch the frame whenever offset changes.
   useEffect(() => {
-    let cancelled = false;
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  // Refetch the frame whenever offset changes. Detection adds real backend
+  // latency, so a request can still be in flight when the next tick fires —
+  // apply whichever request resolves most recently instead of dropping
+  // slow-but-still-latest frames, so a camera can't get stuck blank.
+  useEffect(() => {
+    const requestId = ++requestIdRef.current;
 
     const fetchFrame = async () => {
       try {
         const res = await fetch(
           `http://127.0.0.1:8000/frame?camera_id=${camera.id}&offset=${offset}`
         );
-        if (!res.ok || cancelled) return;
+        if (!res.ok || !mountedRef.current) return;
 
         const blob = await res.blob();
-        if (cancelled) return;
+        if (!mountedRef.current || requestId <= appliedRequestIdRef.current) return;
 
         const url = URL.createObjectURL(blob);
         setFrameSrc(url);
         if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current);
         prevUrlRef.current = url;
+        appliedRequestIdRef.current = requestId;
+
+        const detectionsRes = await fetch(
+          `http://127.0.0.1:8000/detections?camera_id=${camera.id}`
+        );
+        if (detectionsRes.ok && mountedRef.current) {
+          setDetections(await detectionsRes.json());
+        }
       } catch (err) {
         console.error("Failed to fetch camera frame", err);
       }
     };
 
     fetchFrame();
-
-    return () => {
-      cancelled = true;
-    };
   }, [offset, camera.id]);
 
   useEffect(() => {
@@ -116,6 +134,19 @@ function CameraCard({ camera, offset }) {
         <div className="absolute top-3 right-3">
           <span className="block h-2 w-2 rounded-full bg-red-500" />
         </div>
+
+        {detections.length > 0 && (
+          <div className="absolute bottom-10 left-3 flex flex-wrap gap-1">
+            {detections.slice(0, 3).map((detection, index) => (
+              <span
+                key={index}
+                className="rounded bg-emerald-600/85 px-1.5 py-0.5 text-[10px] font-semibold text-white"
+              >
+                {detection.species} · {Math.round(detection.confidence * 100)}%
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Bottom-left clock */}
         <div className="absolute bottom-3 left-3 text-sm font-medium text-white/90 drop-shadow">
