@@ -1,4 +1,6 @@
 import csv
+import logging
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from threading import Lock
@@ -8,31 +10,66 @@ from ultralytics import YOLO
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 AI_DIR = BASE_DIR / "ai-applications"
-
-# train_yolo.py writes its best checkpoint here; prefer it over the stock
-# COCO weights once a wildlife fine-tune exists.
-FINETUNED_WEIGHTS = AI_DIR / "wildlife_yolov8.pt"
+CONFIG_PATH = AI_DIR / "config.yaml"
 BASE_WEIGHTS = AI_DIR / "yolov8n.pt"
+
+sys.path.insert(0, str(AI_DIR / "ensemble"))
+from model_definition import EnsembleModelLoader  # noqa: E402
+from model_evaluation import EnsembleEvaluator  # noqa: E402
+
+logger = logging.getLogger("detection_service")
 
 DEFAULT_CONFIDENCE = 0.5
 LOG_PATH = BASE_DIR / "data" / "logs" / "detections.csv"
 BOX_COLOR = (30, 200, 90)  # BGR
 
-_model = None
+_evaluator = None
+_base_model = None
 _model_lock = Lock()
 
 _last_detections = {}
 _last_detections_lock = Lock()
 
 
-def _load_model():
-    global _model
-    if _model is None:
+def _load_evaluator():
+    """Loads the ensemble of trained animal models, or None if none are registered yet."""
+    global _evaluator
+    if _evaluator is None:
         with _model_lock:
-            if _model is None:
-                weights = FINETUNED_WEIGHTS if FINETUNED_WEIGHTS.exists() else BASE_WEIGHTS
-                _model = YOLO(str(weights))
-    return _model
+            if _evaluator is None:
+                loader = EnsembleModelLoader(CONFIG_PATH)
+                config = loader.load_config()
+                try:
+                    loader.load_ensemble_models()
+                except FileNotFoundError:
+                    logger.warning(
+                        "No trained animal models registered under config.yaml's ensemble.models; "
+                        "falling back to the base COCO model until one is trained"
+                    )
+                    return None
+
+                ensemble_cfg = config.get("ensemble", {})
+                model_weights = {
+                    animal: spec.get("weight", 1.0) for animal, spec in ensemble_cfg.get("models", {}).items()
+                }
+                _evaluator = EnsembleEvaluator(
+                    models=loader.models,
+                    model_weights=model_weights,
+                    voting_strategy=ensemble_cfg.get("voting_strategy", "weighted_average"),
+                    confidence_threshold=ensemble_cfg.get("confidence_threshold", 0.25),
+                    iou_threshold=ensemble_cfg.get("iou_threshold", 0.45),
+                    device=config.get("inference", {}).get("device", "cpu"),
+                )
+    return _evaluator
+
+
+def _load_base_model():
+    global _base_model
+    if _base_model is None:
+        with _model_lock:
+            if _base_model is None:
+                _base_model = YOLO(str(BASE_WEIGHTS))
+    return _base_model
 
 
 def _log_detections(camera_id, offset, detections):
@@ -77,22 +114,37 @@ def _draw_detection(frame, species, confidence, box):
 
 
 def detect_and_annotate(frame, camera_id, offset, confidence=DEFAULT_CONFIDENCE):
-    """Runs YOLO inference on `frame`, draws boxes/labels in place, logs
-    detection events, and returns (annotated_frame, detections)."""
-    model = _load_model()
-    results = model.predict(frame, conf=confidence, verbose=False)[0]
+    """Runs inference on `frame` using the trained animal-model ensemble (falling
+    back to the base COCO model if none are trained yet), draws boxes/labels in
+    place, logs detection events, and returns (annotated_frame, detections)."""
+    evaluator = _load_evaluator()
 
     detections = []
-    for box in results.boxes:
-        cls_id = int(box.cls[0])
-        det_confidence = float(box.conf[0])
-        x1, y1, x2, y2 = (int(v) for v in box.xyxy[0])
-        species = model.names.get(cls_id, str(cls_id))
+    if evaluator is not None:
+        for det in evaluator.ensemble_predict(frame):
+            if det["confidence"] < confidence:
+                continue
+            x1, y1, x2, y2 = (int(v) for v in det["box"])
+            detections.append(
+                {"species": det["animal"], "confidence": round(det["confidence"], 4), "box": [x1, y1, x2, y2]}
+            )
+    else:
+        model = _load_base_model()
+        results = model.predict(frame, conf=confidence, verbose=False)[0]
+        for box in results.boxes:
+            cls_id = int(box.cls[0])
+            det_confidence = float(box.conf[0])
+            x1, y1, x2, y2 = (int(v) for v in box.xyxy[0])
+            detections.append(
+                {
+                    "species": model.names.get(cls_id, str(cls_id)),
+                    "confidence": round(det_confidence, 4),
+                    "box": [x1, y1, x2, y2],
+                }
+            )
 
-        detections.append(
-            {"species": species, "confidence": round(det_confidence, 4), "box": [x1, y1, x2, y2]}
-        )
-        _draw_detection(frame, species, det_confidence, (x1, y1, x2, y2))
+    for det in detections:
+        _draw_detection(frame, det["species"], det["confidence"], tuple(det["box"]))
 
     with _last_detections_lock:
         _last_detections[camera_id] = detections

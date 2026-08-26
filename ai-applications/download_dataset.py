@@ -58,12 +58,35 @@ class RateLimiter:
         self._last_call = time.monotonic()
 
 
-def fetch_observations(session, rate_limiter, api_base_url, species_query, quality_grade, per_page, page):
+def resolve_taxon_id(session, rate_limiter, api_base_url, common_name):
+    """Resolves a common name to an exact iNaturalist taxon id.
+
+    /observations?taxon_name=<text> does a fuzzy substring match, so a query
+    like "Lion" also returns "California Sea Lion" and "Antlion" (an insect).
+    /taxa?q=<text> instead returns a `matched_term` per candidate - the exact
+    name that matched the search - so requiring matched_term to equal the
+    query exactly (case-insensitively) picks out only the intended species.
+    """
+    rate_limiter.wait()
+    resp = session.get(
+        f"{api_base_url}/taxa",
+        params={"q": common_name, "rank": "species", "per_page": 10},
+        timeout=30,
+    )
+    resp.raise_for_status()
+    target = common_name.strip().lower()
+    for taxon in resp.json().get("results", []):
+        if (taxon.get("matched_term") or "").strip().lower() == target:
+            return taxon["id"]
+    return None
+
+
+def fetch_observations(session, rate_limiter, api_base_url, taxon_id, quality_grade, per_page, page):
     rate_limiter.wait()
     resp = session.get(
         f"{api_base_url}/observations",
         params={
-            "taxon_name": species_query,
+            "taxon_id": taxon_id,
             "quality_grade": quality_grade,
             "photos": "true",
             "per_page": per_page,
@@ -84,11 +107,16 @@ def iter_species_photos(session, rate_limiter, api_base_url, species, filters, m
     allowed_licenses = {code.lower() for code in filters["license"]}
 
     for query_name in species["common_names"]:
+        taxon_id = resolve_taxon_id(session, rate_limiter, api_base_url, query_name)
+        if taxon_id is None:
+            logger.warning("Could not resolve an exact taxon match for '%s'; skipping", query_name)
+            continue
+
         page = 1
         while len(seen_photo_ids) < max_images and page <= max_page:
             try:
                 data = fetch_observations(
-                    session, rate_limiter, api_base_url, query_name,
+                    session, rate_limiter, api_base_url, taxon_id,
                     filters["quality_grade"], per_page, page,
                 )
             except requests.RequestException as exc:
@@ -197,7 +225,7 @@ def download_species(session, rate_limiter, config, species, images_root):
     return downloaded
 
 
-def build_pseudo_labels(images_root, labels_root, class_names, fallback_full_image):
+def build_pseudo_labels(images_root, labels_root, class_names, fallback_full_image, min_box_confidence=0.25):
     from ultralytics import YOLO  # heavy import, not needed for --dry-run
 
     detector = YOLO(str(REPO_ROOT / "ai-applications" / "yolov8n.pt"))
@@ -222,23 +250,25 @@ def build_pseudo_labels(images_root, labels_root, class_names, fallback_full_ima
                 width, height = img.size
 
             result = detector.predict(str(image_path), verbose=False)[0]
-            box = None
-            if len(result.boxes):
-                best = max(result.boxes, key=lambda b: float(b.conf[0]))
-                box = tuple(float(v) for v in best.xyxy[0])
-            elif fallback_full_image:
+            # Keep every box the detector is reasonably confident about, not just
+            # the single best one - an image can show more than one animal, and
+            # labeling only the top box teaches the model to expect at most one.
+            boxes = [tuple(float(v) for v in b.xyxy[0]) for b in result.boxes if float(b.conf[0]) >= min_box_confidence]
+            if not boxes and fallback_full_image:
                 margin_x, margin_y = width * 0.05, height * 0.05
-                box = (margin_x, margin_y, width - margin_x, height - margin_y)
+                boxes = [(margin_x, margin_y, width - margin_x, height - margin_y)]
 
-            if box is None:
+            if not boxes:
                 continue
 
-            x1, y1, x2, y2 = box
-            x_center = ((x1 + x2) / 2) / width
-            y_center = ((y1 + y2) / 2) / height
-            box_w = (x2 - x1) / width
-            box_h = (y2 - y1) / height
-            label_path.write_text(f"{class_id} {x_center:.6f} {y_center:.6f} {box_w:.6f} {box_h:.6f}\n")
+            lines = []
+            for x1, y1, x2, y2 in boxes:
+                x_center = ((x1 + x2) / 2) / width
+                y_center = ((y1 + y2) / 2) / height
+                box_w = (x2 - x1) / width
+                box_h = (y2 - y1) / height
+                lines.append(f"{class_id} {x_center:.6f} {y_center:.6f} {box_w:.6f} {box_h:.6f}")
+            label_path.write_text("\n".join(lines) + "\n")
 
 
 def split_dataset(images_root, labels_root, dataset_root, class_names, split_ratios, seed=42):
@@ -339,7 +369,7 @@ def main():
 
     if not args.skip_download:
         session = requests.Session()
-        session.headers.update({"User-Agent": "WildGuard-DatasetDownloader/1.0"})
+        session.headers.update({"User-Agent": "WildLens-DatasetDownloader/1.0"})
         rate_limiter = RateLimiter(config["dataset"]["requests_per_minute"])
 
         for species in species_list:
@@ -349,7 +379,11 @@ def main():
                 logger.exception("Failed downloading %s, continuing with next species", species["name"])
 
     if not args.skip_labels:
-        build_pseudo_labels(images_root, labels_root, class_names, config["dataset"]["pseudo_label_fallback_full_image"])
+        build_pseudo_labels(
+            images_root, labels_root, class_names,
+            config["dataset"]["pseudo_label_fallback_full_image"],
+            config["dataset"].get("pseudo_label_min_confidence", 0.25),
+        )
         split_dataset(images_root, labels_root, dataset_root, class_names, config["dataset"]["train_val_test_split"])
         write_dataset_yaml(dataset_root, class_names)
 

@@ -7,7 +7,7 @@ class FilePaths:
     CAMERA_1 = str(BASE_DIR / "data" / "datasets" / "location-a" / "camera_01.mp4")
     CAMERA_2 = str(BASE_DIR / "data" / "datasets" / "location-a" / "camera_02.mp4")
     CAMERA_3 = str(BASE_DIR / "data" / "datasets" / "location-a" / "camera_03.mp4")
-    CAMERA_4 = str(BASE_DIR / "data" / "datasets" / "location-b" / "camera_04.mp4")
+    CAMERA_4 = str(BASE_DIR / "data" / "datasets" / "location-b" / "camera_01.mp4")
     UPLOAD_FOLDER = "backend/uploads"
 
 
