@@ -13,9 +13,8 @@ AI_DIR = BASE_DIR / "ai-applications"
 CONFIG_PATH = AI_DIR / "config.yaml"
 BASE_WEIGHTS = AI_DIR / "yolov8n.pt"
 
-sys.path.insert(0, str(AI_DIR / "ensemble"))
-from model_definition import EnsembleModelLoader  # noqa: E402
-from model_evaluation import EnsembleEvaluator  # noqa: E402
+sys.path.insert(0, str(AI_DIR / "pipeline"))
+from two_stage_detector import TwoStageDetector  # noqa: E402
 
 logger = logging.getLogger("detection_service")
 
@@ -23,7 +22,7 @@ DEFAULT_CONFIDENCE = 0.5
 LOG_PATH = BASE_DIR / "data" / "logs" / "detections.csv"
 BOX_COLOR = (30, 200, 90)  # BGR
 
-_evaluator = None
+_pipeline = None
 _base_model = None
 _model_lock = Lock()
 
@@ -31,36 +30,23 @@ _last_detections = {}
 _last_detections_lock = Lock()
 
 
-def _load_evaluator():
-    """Loads the ensemble of trained animal models, or None if none are registered yet."""
-    global _evaluator
-    if _evaluator is None:
+def _load_pipeline():
+    """Loads the two-stage detector+classifier pipeline, or None if it isn't trained yet."""
+    global _pipeline
+    if _pipeline is None:
         with _model_lock:
-            if _evaluator is None:
-                loader = EnsembleModelLoader(CONFIG_PATH)
-                config = loader.load_config()
+            if _pipeline is None:
+                candidate = TwoStageDetector(CONFIG_PATH)
                 try:
-                    loader.load_ensemble_models()
+                    candidate.load_models()
                 except FileNotFoundError:
                     logger.warning(
-                        "No trained animal models registered under config.yaml's ensemble.models; "
-                        "falling back to the base COCO model until one is trained"
+                        "No trained pipeline models found under config.yaml's pipeline section; "
+                        "falling back to the base COCO model until model_train_code/main.py has been run"
                     )
                     return None
-
-                ensemble_cfg = config.get("ensemble", {})
-                model_weights = {
-                    animal: spec.get("weight", 1.0) for animal, spec in ensemble_cfg.get("models", {}).items()
-                }
-                _evaluator = EnsembleEvaluator(
-                    models=loader.models,
-                    model_weights=model_weights,
-                    voting_strategy=ensemble_cfg.get("voting_strategy", "weighted_average"),
-                    confidence_threshold=ensemble_cfg.get("confidence_threshold", 0.25),
-                    iou_threshold=ensemble_cfg.get("iou_threshold", 0.45),
-                    device=config.get("inference", {}).get("device", "cpu"),
-                )
-    return _evaluator
+                _pipeline = candidate
+    return _pipeline
 
 
 def _load_base_model():
@@ -114,19 +100,19 @@ def _draw_detection(frame, species, confidence, box):
 
 
 def detect_and_annotate(frame, camera_id, offset, confidence=DEFAULT_CONFIDENCE):
-    """Runs inference on `frame` using the trained animal-model ensemble (falling
-    back to the base COCO model if none are trained yet), draws boxes/labels in
-    place, logs detection events, and returns (annotated_frame, detections)."""
-    evaluator = _load_evaluator()
+    """Runs inference on `frame` using the trained two-stage detector+classifier
+    pipeline (falling back to the base COCO model if it isn't trained yet), draws
+    boxes/labels in place, logs detection events, and returns (annotated_frame, detections)."""
+    pipeline = _load_pipeline()
 
     detections = []
-    if evaluator is not None:
-        for det in evaluator.ensemble_predict(frame):
+    if pipeline is not None:
+        for det in pipeline.predict(frame):
             if det["confidence"] < confidence:
                 continue
             x1, y1, x2, y2 = (int(v) for v in det["box"])
             detections.append(
-                {"species": det["animal"], "confidence": round(det["confidence"], 4), "box": [x1, y1, x2, y2]}
+                {"species": det["species"], "confidence": round(det["confidence"], 4), "box": [x1, y1, x2, y2]}
             )
     else:
         model = _load_base_model()
