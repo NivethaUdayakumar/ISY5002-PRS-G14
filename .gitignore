@@ -73,7 +73,6 @@ $RECYCLE.BIN/
 
 # ai-applications: generated datasets, model weights, and training runs
 ai-applications/wildlife_dataset/
-ai-applications/trained_models/
 ai-applications/runs/
 ai-applications/pipeline/predictions/
 ai-applications/*.pt
