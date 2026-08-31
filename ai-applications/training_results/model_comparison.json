@@ -1,0 +1,32 @@
+[
+  {
+    "Model":"YOLO26n",
+    "Precision":0.9589677383,
+    "Recall":0.9341743674,
+    "mAP50":0.9688608191,
+    "mAP50-95":0.8462568662,
+    "mAP75":0.9237811199,
+    "Training time (min)":35.407005767,
+    "Best weights":"\/content\/runs\/detect\/runs\/african_wildlife\/yolo26n\/weights\/best.pt"
+  },
+  {
+    "Model":"YOLO11n",
+    "Precision":0.9793490495,
+    "Recall":0.9300921105,
+    "mAP50":0.9802562622,
+    "mAP50-95":0.8409394509,
+    "mAP75":0.9344644249,
+    "Training time (min)":33.6598082701,
+    "Best weights":"\/content\/runs\/detect\/runs\/african_wildlife\/yolo11n\/weights\/best.pt"
+  },
+  {
+    "Model":"YOLO8n",
+    "Precision":0.9641384301,
+    "Recall":0.9454064809,
+    "mAP50":0.9703330941,
+    "mAP50-95":0.827889235,
+    "mAP75":0.9156918327,
+    "Training time (min)":30.890439562,
+    "Best weights":"\/content\/runs\/detect\/runs\/african_wildlife\/yolo8n\/weights\/best.pt"
+  }
+]

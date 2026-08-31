@@ -1,0 +1,36 @@
+Creating a Custom YOLO Detection Dataset (like Ultralytics African-wildlife)
+Doc: https://docs.ultralytics.com/modes/train
+
+1. Collect and organize images
+- Gather ~1,000-1,500 diverse images of your target classes.
+- Split roughly 70-80% train, 15% validation, 15% test.
+- Use the standard folder structure:
+
+dataset/
+  ├── train/
+  │   ├── images/  (JPEG/PNG)
+  │   └── labels/  (.txt)
+  ├── valid/
+  │   ├── images/
+  │   └── labels/
+  └── test/
+      ├── images/
+      └── labels/
+
+2. Annotate in YOLO format
+- Draw bounding boxes with a tool like CVAT, Roboflow, or LabelImg.
+- Export as YOLO TXT: one .txt per image, same filename.
+- Each line: class_index x_center y_center width height
+- All coordinates normalized to 0.0-1.0 (pixels divided by image width/height).
+
+3. Create data.yaml
+path: ./dataset      # dataset root
+train: train/images
+val: valid/images
+test: test/images    # optional
+
+names:
+  0: buffalo
+  1: elephant
+  2: rhino
+  3: zebra
