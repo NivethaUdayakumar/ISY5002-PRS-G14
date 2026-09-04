@@ -1,0 +1,12 @@
+[
+  {
+    "Model":"RT-DETR-L",
+    "Precision":0.9820184048,
+    "Recall":0.9069747305,
+    "mAP50":0.9550803194,
+    "mAP50-95":0.853952801,
+    "mAP75":0.92096608,
+    "Training time (min)":159.0802456141,
+    "Best weights":"\/content\/runs\/detect\/runs\/african_wildlife\/rtdetr\/weights\/best.pt"
+  }
+]

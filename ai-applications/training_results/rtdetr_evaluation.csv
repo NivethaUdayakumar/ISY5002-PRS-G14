@@ -1,0 +1,2 @@
+Model,Precision,Recall,mAP50,mAP50-95,mAP75,Training time (min),Best weights
+RT-DETR-L,0.9820184048466658,0.9069747305092405,0.955080319435537,0.8539528010480257,0.9209660800239434,159.08024561405182,/content/runs/detect/runs/african_wildlife/rtdetr/weights/best.pt
