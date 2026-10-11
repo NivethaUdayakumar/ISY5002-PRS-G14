@@ -1,0 +1,12 @@
+[
+  {
+    "Model":"RF-DETR-M",
+    "Precision":0.9851997102,
+    "Recall":0.9652188552,
+    "mAP50":0.9907115851,
+    "mAP50-95":0.8978272073,
+    "mAP75":0.9568865637,
+    "Training time (min)":29.2031557282,
+    "Best weights":"ai-applications\/trained_models\/rfdetr_medium_best.pth"
+  }
+]
