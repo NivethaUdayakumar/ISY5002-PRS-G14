@@ -70,9 +70,15 @@ desktop.ini
 $RECYCLE.BIN/
 
 *.mp4
+*.webm
+*.mov
+
+
+data/wildlife_dataset/images
+data/wildlife_dataset/labels
 
 # ai-applications: generated datasets, model weights, and training runs
-ai-applications/wildlife_dataset/
+
 ai-applications/runs/
 ai-applications/pipeline/predictions/
 ai-applications/*.pt

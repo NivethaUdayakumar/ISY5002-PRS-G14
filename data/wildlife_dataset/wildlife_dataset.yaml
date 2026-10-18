@@ -1,9 +1,12 @@
-path: C:\Users\nivet\ISY5002-PRS-G14\data\wildlife_dataset
+path: C:\Users\zheng\Documents\ISY5002-PRS-G14\data\wildlife_dataset
 train: images/train
 val: images/val
 test: images/test
 names:
   0: buffalo
   1: elephant
-  2: lion
+  2: rhino
   3: zebra
+  4: okapi
+  5: leopard
+  6: cheetah
