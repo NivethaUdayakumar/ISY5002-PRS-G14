@@ -1,0 +1,54 @@
+{
+  "detectors": [
+    "YOLO26l",
+    "RT-DETR-L",
+    "RF-DETR-M"
+  ],
+  "tta": {
+    "YOLO26l": "off",
+    "RT-DETR-L": "off",
+    "RF-DETR-M": "off"
+  },
+  "box_mode": "best",
+  "score_mode": "mean",
+  "threshold": 0.52,
+  "candidate_conf": 0.02,
+  "nms_iou": 0.7,
+  "tta_iou": 0.55,
+  "cluster_iou": 0.55,
+  "quality": {
+    "YOLO11n": 0.7577421204899629,
+    "YOLO26l": 0.7826400343186448,
+    "RT-DETR-L": 0.7935969488049792,
+    "RF-DETR-M": 0.8931186182474482
+  },
+  "rank": [
+    "RF-DETR-M",
+    "RT-DETR-L",
+    "YOLO26l",
+    "YOLO11n"
+  ],
+  "class_names": [
+    "buffalo",
+    "elephant",
+    "rhino",
+    "zebra",
+    "okapi",
+    "leopard",
+    "cheetah"
+  ],
+  "final_conf": {
+    "YOLO11n": 0.5,
+    "YOLO26l": 0.5,
+    "RT-DETR-L": 0.7,
+    "RF-DETR-M": 0.45
+  },
+  "validation": {
+    "mAP50-95": 0.8977408469028907,
+    "mAP50": 0.9856731530589801,
+    "F1": 0.9668141592920354,
+    "Recall": 0.9562363238512035,
+    "Precision": 0.9776286353467561,
+    "Selection score": 0.932277503097463
+  }
+}
