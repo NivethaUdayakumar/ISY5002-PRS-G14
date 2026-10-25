@@ -82,9 +82,6 @@ export default function NotificationsModal({ open, onClose, sightings }) {
                     <span className="font-semibold text-gray-900">Class:</span> {selectedSighting.class ?? 'Unknown'}
                   </p>
                   <p className="text-gray-700">
-                    <span className="font-semibold text-gray-900">First seen:</span> {formatTimestamp(selectedSighting.firstSeen)}
-                  </p>
-                  <p className="text-gray-700">
                     <span className="font-semibold text-gray-900">Last seen:</span> {formatTimestamp(selectedSighting.lastSeen)}
                   </p>
                   <p className="text-gray-700">
