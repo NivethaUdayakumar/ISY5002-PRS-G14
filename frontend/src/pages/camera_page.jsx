@@ -18,9 +18,6 @@ const CameraCard = memo(function CameraCard({ camera, frameSrc, stats }) {
           <span className="text-[11px] font-semibold tracking-wide text-white">{camera.id}</span>
           <span className="text-[11px] text-white/60">·</span>
           <span className="text-[11px] font-semibold tracking-wide text-white">LIVE</span>
-        </div>
-
-        <div className="absolute right-3 top-3">
           <span className="block h-2 w-2 rounded-full bg-red-500" />
         </div>
 

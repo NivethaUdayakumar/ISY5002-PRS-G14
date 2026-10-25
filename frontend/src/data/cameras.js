@@ -2,7 +2,7 @@ export const API_BASE_URL = "http://127.0.0.1:8000";
 
 export const areas = [
   {
-    name: "Sonian Forest",
+    name: "Golden Plains",
     location: "Belgium",
     cameraCount: 3,
     cameras: [
@@ -12,13 +12,13 @@ export const areas = [
     ],
   },
   {
-    name: "Coastal Lagoons",
+    name: "Red Dust Plains",
     location: "The Scrape — shingle & shallow lagoons",
     cameraCount: 3,
     cameras: [
-      { id: "camera_04", name: "Scrape East" },
-      { id: "camera_05", name: "Sluice" },
-      { id: "camera_06", name: "Sluice" },
+      { id: "camera_04", name: "Camera 04" },
+      { id: "camera_05", name: "Camera 05" },
+      { id: "camera_06", name: "Camera 06" },
     ],
   },
 ];

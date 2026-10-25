@@ -44,7 +44,7 @@ export default function MainLayout() {
         {/* Left: Logo + nav tabs */}
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-black inline-block" />
+            <img src="/paw.webp" alt="" className="h-6 w-6 object-cover" />
             <span className="font-semibold text-lg text-gray-900">WildLens</span>
           </div>
 
