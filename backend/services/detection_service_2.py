@@ -1,0 +1,75 @@
+from pathlib import Path
+from threading import Lock
+
+import cv2
+import torch
+from PIL import Image
+from rfdetr import from_checkpoint
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+WEIGHTS_PATH = BASE_DIR / "ai-applications" / "trained_models" / "rfdetr_erasing_10_best.pth"
+BOX_COLOR = (30, 200, 90)  # BGR
+
+_model = None
+_model_lock = Lock()
+
+
+def _load_model():
+    global _model
+    if _model is None:
+        with _model_lock:
+            if _model is None:
+                model = from_checkpoint(str(WEIGHTS_PATH))
+                # FP16 roughly halves GPU latency. compile=False keeps the model usable
+                # with any batch size (a traced model is fixed to one batch size).
+                if torch.cuda.is_available():
+                    model.inference(compile=False, dtype=torch.float16)
+                _model = model
+    return _model
+
+
+def _draw_detections(frame, detections, class_names):
+    for (x1, y1, x2, y2), score, class_id in zip(
+        detections.xyxy.astype(int), detections.confidence, detections.class_id
+    ):
+        label = f"{class_names[int(class_id)]} {score:.0%}"
+
+        cv2.rectangle(frame, (x1, y1), (x2, y2), BOX_COLOR, 2)
+
+        (text_w, text_h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+        label_top = max(0, y1 - text_h - 8)
+        cv2.rectangle(frame, (x1, label_top), (x1 + text_w + 6, y1), BOX_COLOR, -1)
+        cv2.putText(
+            frame,
+            label,
+            (x1 + 3, max(text_h + 2, y1 - 5)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (10, 10, 10),
+            1,
+            cv2.LINE_AA,
+        )
+
+
+def detect_and_annotate_batch(frames, confidence):
+    """Runs the RF-DETR model on a list of BGR frames in a single batch, draws
+    boxes/labels on each in place, and returns the annotated frames."""
+    if not frames:
+        return []
+
+    model = _load_model()
+    images = [Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)) for frame in frames]
+    results = model.predict(images, threshold=confidence, include_source_image=False)
+    if not isinstance(results, list):
+        results = [results]
+
+    for frame, detections in zip(frames, results):
+        _draw_detections(frame, detections, model.class_names)
+
+    return frames
+
+
+def detect_and_annotate(frame, camera_id, confidence):
+    """Runs the RF-DETR model on a single BGR `frame`, draws boxes/labels on it
+    in place, and returns the annotated frame."""
+    return detect_and_annotate_batch([frame], confidence)[0]
