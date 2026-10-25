@@ -1,24 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
-import { initialSightings } from '../data/reserve_map_data';
+import { API_BASE_URL } from '../data/cameras';
 import folderIcon from '../assets/collections/folder-icon.png';
-import deerSample from '../assets/collections/deer-sample.jpg';
-
-function buildCollections(sightings) {
-  const byName = new Map();
-  sightings.forEach((sighting) => {
-    if (sighting.class === 'Unknown') return;
-    const existing = byName.get(sighting.species);
-    if (existing) {
-      existing.count += 1;
-    } else {
-      byName.set(sighting.species, { name: sighting.species, class: sighting.class, count: 1 });
-    }
-  });
-  return Array.from(byName.values()).sort((a, b) => b.count - a.count);
-}
-
-const ALL_COLLECTIONS = buildCollections(initialSightings);
 
 function CollectionCard({ collection }) {
   return (
@@ -29,11 +12,13 @@ function CollectionCard({ collection }) {
           alt=""
           className="absolute inset-0 h-full w-full object-contain transition-transform group-hover:scale-[1.03]"
         />
-        <img
-          src={deerSample}
-          alt={collection.name}
-          className="absolute left-[16%] top-[14%] h-[62%] w-[62%] rounded-md object-cover shadow-md ring-2 ring-white"
-        />
+        {collection.imageUrl && (
+          <img
+            src={`${API_BASE_URL}${collection.imageUrl}`}
+            alt={collection.name}
+            className="absolute left-[16%] top-[14%] h-[62%] w-[62%] rounded-md object-cover shadow-md ring-2 ring-white"
+          />
+        )}
       </div>
       <div className="mt-1.5">
         <p className="truncate text-xs font-semibold text-gray-900">{collection.name}</p>
@@ -45,12 +30,20 @@ function CollectionCard({ collection }) {
 
 export default function CollectionPage() {
   const [search, setSearch] = useState('');
+  const [allCollections, setAllCollections] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/collections`)
+      .then((response) => response.json())
+      .then(setAllCollections)
+      .catch((err) => console.error('Failed to fetch collections', err));
+  }, []);
 
   const collections = useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) return ALL_COLLECTIONS;
-    return ALL_COLLECTIONS.filter((collection) => collection.name.toLowerCase().includes(term));
-  }, [search]);
+    if (!term) return allCollections;
+    return allCollections.filter((collection) => collection.name.toLowerCase().includes(term));
+  }, [search, allCollections]);
 
   return (
     <div className="p-8">

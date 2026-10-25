@@ -309,6 +309,34 @@ def delete_sighting(sighting_id):
         return True
 
 
+def get_collections():
+    """Lists each folder under SIGHTINGS_DIR with the number of files it holds and its most
+    recently modified image, largest first. imageUrl is None for folders with no images."""
+    if not SIGHTINGS_DIR.exists():
+        return []
+    collections = []
+    for folder in SIGHTINGS_DIR.iterdir():
+        if not folder.is_dir():
+            continue
+        files = [path for path in folder.iterdir() if path.is_file()]
+        images = [path for path in files if path.suffix.lower() in (".jpg", ".jpeg", ".png")]
+        latest = max(images, key=lambda path: path.stat().st_mtime, default=None)
+        collections.append({
+            "name": folder.name,
+            "count": len(files),
+            "imageUrl": f"/collections/{folder.name}/{latest.name}" if latest else None,
+        })
+    return sorted(collections, key=lambda item: (-item["count"], item["name"]))
+
+
+def get_collection_image(folder_name, file_name):
+    """Resolves an image inside a collection folder, refusing paths that escape SIGHTINGS_DIR."""
+    path = (SIGHTINGS_DIR / folder_name / file_name).resolve()
+    if path.parent.parent != SIGHTINGS_DIR.resolve() or not path.is_file():
+        return None
+    return path
+
+
 def get_species():
     with _lock:
         return _read_species()

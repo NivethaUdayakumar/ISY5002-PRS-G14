@@ -2,7 +2,7 @@ from fastapi import FastAPI, APIRouter, Body, HTTPException, Query
 from fastapi.responses import FileResponse, Response
 from constants.file_paths import FilePaths, CameraFilePaths
 from services.detection_service_2 import detect_and_annotate, detect_batch_with_metadata
-from services.sighting_store import add_species, delete_sighting, get_species, get_sighting_image, get_sightings, record_detections, update_sighting
+from services.sighting_store import add_species, delete_sighting, get_collection_image, get_collections, get_species, get_sighting_image, get_sightings, record_detections, update_sighting
 from services.video_service import read_frame
 from concurrent.futures import ThreadPoolExecutor
 import base64
@@ -147,3 +147,16 @@ def create_species(entry: dict = Body(...)):
     if not name:
         raise HTTPException(status_code=422, detail="Species name is required")
     return add_species(name, entry.get("class", "Unknown"), entry.get("endangered", False))
+
+
+@router.get("/collections")
+def list_collections():
+    return get_collections()
+
+
+@router.get("/collections/{folder_name}/{file_name}")
+def collection_image(folder_name: str, file_name: str):
+    image_path = get_collection_image(folder_name, file_name)
+    if image_path is None:
+        raise HTTPException(status_code=404, detail="Collection image not found")
+    return FileResponse(image_path)
