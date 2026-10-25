@@ -53,8 +53,13 @@ def _draw_detections(frame, detections, class_names):
 
 def detect_and_annotate_batch(frames, confidence):
     """Runs the RF-DETR model on a list of BGR frames in a single batch, draws
-    boxes/labels on each in place, and returns the annotated frames along with
-    the set of class names detected in each frame."""
+    boxes/labels on each in place, and returns the annotated frames."""
+    annotated, _ = detect_batch_with_metadata(frames, confidence)
+    return annotated
+
+
+def detect_batch_with_metadata(frames, confidence):
+    """Return annotated frames and serializable detections for each frame."""
     if not frames:
         return [], []
 
@@ -64,7 +69,7 @@ def detect_and_annotate_batch(frames, confidence):
     if not isinstance(results, list):
         results = [results]
 
-    labels = []
+    metadata = []
     for frame, detections in zip(frames, results):
         height, width = frame.shape[:2]
         frame_detections = []
@@ -81,13 +86,12 @@ def detect_and_annotate_batch(frames, confidence):
                 "bbox": [int(value) for value in box],
             })
         _draw_detections(frame, detections, model.class_names)
-        labels.append({model.class_names[int(class_id)] for class_id in detections.class_id})
+        metadata.append(frame_detections)
 
-    return frames, labels
+    return frames, metadata
 
 
 def detect_and_annotate(frame, camera_id, confidence):
     """Runs the RF-DETR model on a single BGR `frame`, draws boxes/labels on it
-    in place, and returns the annotated frame and the set of detected class names."""
-    frames, labels = detect_and_annotate_batch([frame], confidence)
-    return frames[0], labels[0]
+    in place, and returns the annotated frame."""
+    return detect_and_annotate_batch([frame], confidence)[0]

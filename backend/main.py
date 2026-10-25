@@ -1,18 +1,9 @@
-from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.video_route import router as video_router
-from services.sighting_service import clear_sightings
+from services.sighting_store import reset_runtime_sightings, seed_species
 
-
-@asynccontextmanager
-async def lifespan(app):
-    clear_sightings()
-    yield
-
-
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
