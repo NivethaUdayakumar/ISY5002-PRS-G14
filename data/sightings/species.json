@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Buffalo",
+    "class": "Mammals",
+    "endangered": false
+  },
+  {
+    "name": "Cheetah",
+    "class": "Mammals",
+    "endangered": true
+  },
+  {
+    "name": "Elephant",
+    "class": "Mammals",
+    "endangered": true
+  },
+  {
+    "name": "Leopard",
+    "class": "Mammals",
+    "endangered": true
+  },
+  {
+    "name": "Okapi",
+    "class": "Mammals",
+    "endangered": true
+  },
+  {
+    "name": "Rhino",
+    "class": "Mammals",
+    "endangered": true
+  },
+  {
+    "name": "Zebra",
+    "class": "Mammals",
+    "endangered": false
+  }
+]

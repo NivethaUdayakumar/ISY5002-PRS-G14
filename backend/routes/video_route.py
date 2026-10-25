@@ -1,7 +1,8 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Query
-from fastapi.responses import Response
+from fastapi import FastAPI, APIRouter, Body, HTTPException, Query
+from fastapi.responses import FileResponse, Response
 from constants.file_paths import FilePaths, CameraFilePaths
-from services.detection_service_2 import detect_and_annotate, detect_and_annotate_batch
+from services.detection_service_2 import detect_and_annotate, detect_batch_with_metadata
+from services.sighting_store import add_species, delete_sighting, get_species, get_sighting_image, get_sightings, record_detections, update_sighting
 from services.video_service import read_frame
 from concurrent.futures import ThreadPoolExecutor
 import base64
@@ -14,6 +15,8 @@ router = APIRouter(
 )
 
 CONFIDENCE = 0.45
+PREVIEW_MAX_WIDTH = 854
+PREVIEW_JPEG_QUALITY = 75
 
 
 @router.get("/frame")
@@ -82,8 +85,11 @@ def get_frames(
     readable_ids = [camera_id for camera_id, frame in frames.items() if frame is not None]
 
     if detect:
-        annotated = detect_and_annotate_batch([frames[camera_id] for camera_id in readable_ids], CONFIDENCE)
+        input_frames = [frames[camera_id] for camera_id in readable_ids]
+        annotated, detections = detect_batch_with_metadata(input_frames, CONFIDENCE)
         frames.update(zip(readable_ids, annotated))
+        for camera_id, frame_detections in zip(readable_ids, detections):
+            record_detections(camera_id, frame_detections, frames[camera_id], offset)
 
     result = {}
     for camera_id, frame in frames.items():
@@ -91,8 +97,53 @@ def get_frames(
         if frame is None:
             continue
 
-        success, buffer = cv2.imencode(".jpg", frame)
+        # Detection and sighting crops use the full-resolution frame; the live preview is downscaled.
+        height, width = frame.shape[:2]
+        if width > PREVIEW_MAX_WIDTH:
+            frame = cv2.resize(frame, (PREVIEW_MAX_WIDTH, round(height * PREVIEW_MAX_WIDTH / width)), interpolation=cv2.INTER_AREA)
+        success, buffer = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, PREVIEW_JPEG_QUALITY])
         if success:
             result[camera_id] = "data:image/jpeg;base64," + base64.b64encode(buffer.tobytes()).decode("ascii")
 
     return result
+
+
+@router.get("/sightings")
+def list_sightings():
+    return get_sightings()
+
+
+@router.get("/sightings/{sighting_id}/image")
+def sighting_image(sighting_id: str):
+    image_path = get_sighting_image(sighting_id)
+    if image_path is None:
+        raise HTTPException(status_code=404, detail="Sighting image not found")
+    return FileResponse(image_path, media_type="image/jpeg", headers={"Cache-Control": "private, max-age=5"})
+
+
+@router.patch("/sightings/{sighting_id}")
+def patch_sighting(sighting_id: str, changes: dict = Body(...)):
+    record = update_sighting(sighting_id, changes)
+    if record is None:
+        raise HTTPException(status_code=404, detail="Sighting not found")
+    return record
+
+
+@router.delete("/sightings/{sighting_id}")
+def remove_sighting(sighting_id: str):
+    if not delete_sighting(sighting_id):
+        raise HTTPException(status_code=404, detail="Sighting not found")
+    return {"deleted": sighting_id}
+
+
+@router.get("/species")
+def list_species():
+    return get_species()
+
+
+@router.post("/species")
+def create_species(entry: dict = Body(...)):
+    name = str(entry.get("name", "")).strip()
+    if not name:
+        raise HTTPException(status_code=422, detail="Species name is required")
+    return add_species(name, entry.get("class", "Unknown"), entry.get("endangered", False))

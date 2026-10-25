@@ -54,8 +54,14 @@ def _draw_detections(frame, detections, class_names):
 def detect_and_annotate_batch(frames, confidence):
     """Runs the RF-DETR model on a list of BGR frames in a single batch, draws
     boxes/labels on each in place, and returns the annotated frames."""
+    annotated, _ = detect_batch_with_metadata(frames, confidence)
+    return annotated
+
+
+def detect_batch_with_metadata(frames, confidence):
+    """Return annotated frames and serializable detections for each frame."""
     if not frames:
-        return []
+        return [], []
 
     model = _load_model()
     images = [Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)) for frame in frames]
@@ -63,10 +69,26 @@ def detect_and_annotate_batch(frames, confidence):
     if not isinstance(results, list):
         results = [results]
 
+    metadata = []
     for frame, detections in zip(frames, results):
+        height, width = frame.shape[:2]
+        frame_detections = []
+        for box, score, class_id in zip(detections.xyxy, detections.confidence, detections.class_id):
+            class_id = int(class_id)
+            x1, y1, x2, y2 = (int(value) for value in box)
+            # Copy the crop before boxes are drawn so it contains only the animal.
+            crop = frame[max(0, y1):min(height, y2), max(0, x1):min(width, x2)].copy()
+            frame_detections.append({
+                "crop": crop,
+                "species": model.class_names[class_id],
+                "classId": class_id,
+                "confidence": float(score),
+                "bbox": [int(value) for value in box],
+            })
         _draw_detections(frame, detections, model.class_names)
+        metadata.append(frame_detections)
 
-    return frames
+    return frames, metadata
 
 
 def detect_and_annotate(frame, camera_id, confidence):

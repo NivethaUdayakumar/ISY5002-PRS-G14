@@ -90,8 +90,20 @@ export const initialSightings = [
   { id: 'sg-26', cameraId: 'C6', species: 'Unknown (motion blur)', class: 'Unknown', timestamp: '05 Aug 2026 22:36', confidence: 0.29 },
 ];
 
+function normalizeCameraId(cameraId) {
+  const value = String(cameraId ?? '').trim().toLowerCase();
+  if (!value) return '';
+  if (value.startsWith('camera_')) return value;
+  if (value.startsWith('c')) {
+    const numeric = value.slice(1);
+    return `camera_${numeric.padStart(2, '0')}`;
+  }
+  return value;
+}
+
 export function sightingsForCamera(sightingList, cameraId) {
-  return sightingList.filter((sighting) => sighting.cameraId === cameraId);
+  const normalizedCameraId = normalizeCameraId(cameraId);
+  return sightingList.filter((sighting) => normalizeCameraId(sighting.cameraId) === normalizedCameraId);
 }
 
 export function sightingsForLocation(sightingList, locationId) {
