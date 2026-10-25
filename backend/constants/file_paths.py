@@ -2,6 +2,7 @@
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+SIGHTINGS_DIR = BASE_DIR / "data" / "sightings"
 
 class FilePaths:
     CAMERA_1 = str(BASE_DIR / "data" / "live-cam" / "location-a" / "camera_01.mp4")

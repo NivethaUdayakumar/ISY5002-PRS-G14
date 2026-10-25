@@ -4,6 +4,7 @@ from constants.file_paths import FilePaths, CameraFilePaths
 from services.detection_service_2 import detect_and_annotate, detect_batch_with_metadata
 from services.sighting_store import add_species, delete_sighting, get_species, get_sighting_image, get_sightings, record_detections, update_sighting
 from services.video_service import read_frame
+from services.sighting_service import save_sightings
 from concurrent.futures import ThreadPoolExecutor
 import base64
 import cv2
@@ -40,7 +41,8 @@ def get_frame(
         )
 
     if detect:
-        frame = detect_and_annotate(frame, camera_id, CONFIDENCE)
+        frame, labels = detect_and_annotate(frame, camera_id, CONFIDENCE)
+        save_sightings(frame, camera_id, labels)
 
     success, buffer = cv2.imencode(".jpg", frame)
 
@@ -85,11 +87,10 @@ def get_frames(
     readable_ids = [camera_id for camera_id, frame in frames.items() if frame is not None]
 
     if detect:
-        input_frames = [frames[camera_id] for camera_id in readable_ids]
-        annotated, detections = detect_batch_with_metadata(input_frames, CONFIDENCE)
+        annotated, labels = detect_and_annotate_batch([frames[camera_id] for camera_id in readable_ids], CONFIDENCE)
         frames.update(zip(readable_ids, annotated))
-        for camera_id, frame_detections in zip(readable_ids, detections):
-            record_detections(camera_id, frame_detections, frames[camera_id], offset)
+        for camera_id, frame, frame_labels in zip(readable_ids, annotated, labels):
+            save_sightings(frame, camera_id, frame_labels)
 
     result = {}
     for camera_id, frame in frames.items():
