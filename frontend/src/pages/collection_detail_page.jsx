@@ -2,51 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { API_BASE_URL, cameraLocation, cameraName, formatTimestamp } from '../data/cameras';
-import { CloseButton, ModalOverlay } from '../components/modal';
-
-function ImageViewer({ image, collectionName, onClose }) {
-  const metadata = image.metadata;
-  return (
-    <ModalOverlay>
-      <div className="absolute inset-0" onClick={onClose} />
-      <div className="relative w-full max-w-4xl overflow-hidden rounded-2xl bg-white">
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-gray-900">{metadata?.species ?? collectionName}</p>
-            <p className="truncate font-mono text-xs text-gray-400">{image.file}</p>
-          </div>
-          <CloseButton onClick={onClose} label="Close image" />
-        </div>
-        <div className="relative bg-gray-100">
-          <img src={`${API_BASE_URL}${image.imageUrl}`} alt={metadata?.species ?? image.file} className="mx-auto max-h-[70vh] w-full object-contain" />
-          {image.cameraId && (
-            <span className="absolute left-4 top-4 rounded-full bg-gray-900 px-5 py-2 text-lg font-bold text-white shadow-lg">
-              {cameraName(image.cameraId)}
-            </span>
-          )}
-        </div>
-        {(image.cameraId || image.capturedAt || metadata) && (
-          <p className="px-6 py-3 text-sm text-gray-500">
-            {[
-              metadata?.class,
-              image.cameraId && cameraLocation(image.cameraId),
-              image.capturedAt && formatTimestamp(image.capturedAt),
-              metadata?.confidence != null && `Confidence ${metadata.confidence.toFixed(2)}`,
-            ]
-              .filter(Boolean)
-              .join(' · ')}
-          </p>
-        )}
-      </div>
-    </ModalOverlay>
-  );
-}
+import SightingRecord from '../components/sighting_record';
 
 export default function CollectionDetailPage() {
   const { folderName } = useParams();
   const [collection, setCollection] = useState(null);
   const [error, setError] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedSighting, setSelectedSighting] = useState(null);
 
   useEffect(() => {
     setCollection(null);
@@ -87,8 +49,9 @@ export default function CollectionDetailPage() {
             <button
               key={image.file}
               type="button"
-              onClick={() => setSelectedImage(image)}
-              className="group cursor-pointer overflow-hidden rounded-xl bg-gray-200 text-left"
+              onClick={() => setSelectedSighting(image.metadata)}
+              disabled={!image.metadata}
+              className="group cursor-pointer overflow-hidden rounded-xl bg-gray-200 text-left disabled:cursor-default"
             >
               <img
                 src={`${API_BASE_URL}${image.imageUrl}`}
@@ -114,8 +77,17 @@ export default function CollectionDetailPage() {
         </div>
       )}
 
-      {selectedImage && (
-        <ImageViewer image={selectedImage} collectionName={folderName} onClose={() => setSelectedImage(null)} />
+      {selectedSighting && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4">
+          <div className="max-h-[94vh] w-full max-w-6xl overflow-y-auto rounded-[26px] border border-gray-200 bg-white shadow-2xl">
+            <SightingRecord
+              key={selectedSighting.id}
+              sighting={selectedSighting}
+              location={cameraLocation(selectedSighting.cameraId)}
+              onClose={() => setSelectedSighting(null)}
+            />
+          </div>
+        </div>
       )}
     </div>
   );
