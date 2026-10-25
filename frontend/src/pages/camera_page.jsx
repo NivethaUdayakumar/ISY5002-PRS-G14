@@ -1,7 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Map } from "lucide-react";
-import ReserveMapModal from "../modals/reserve_map_modal";
-import { locations as reserveMapLocations } from "../data/reserve_map_data";
 
 const OFFSET_TICK_INTERVAL_MS = 1000;
 
@@ -104,10 +101,10 @@ function CameraCard({ camera, frameSrc }) {
   );
 }
 
-function AreaSection({ area, frames, onOpenMap }) {
+function AreaSection({ area, frames }) {
   return (
     <section>
-      <div className="flex items-center justify-between border-b border-gray-200 pb-3">
+      <div className="border-b border-gray-200 pb-3">
         <div className="flex items-baseline gap-3">
           <h2 className="text-base font-semibold text-gray-900">
             {area.name}
@@ -117,14 +114,6 @@ function AreaSection({ area, frames, onOpenMap }) {
             {area.cameraCount} cameras
           </span>
         </div>
-
-        <button
-          onClick={() => onOpenMap(area.name)}
-          className="flex items-center gap-1.5 rounded-full border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-        >
-          <Map className="h-4 w-4" />
-          Map
-        </button>
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -141,8 +130,6 @@ function AreaSection({ area, frames, onOpenMap }) {
 }
 
 export default function CameraPage() {
-  const [mapOpen, setMapOpen] = useState(false);
-  const [mapInitialLocationId, setMapInitialLocationId] = useState(null);
   const [offset, setOffset] = useState(1);
   const [frames, setFrames] = useState({});
   const requestIdRef = useRef(0);
@@ -215,31 +202,17 @@ export default function CameraPage() {
     fetchFrames();
   }, [offset]);
 
-  function handleOpenMap(areaName) {
-    const location = reserveMapLocations.find((item) => item.name === areaName);
-    setMapInitialLocationId(location?.id ?? null);
-    setMapOpen(true);
-  }
-
   return (
     <div className="p-8">
-
       <div className="space-y-10">
         {areas.map((area) => (
           <AreaSection
             key={area.name}
             area={area}
             frames={frames}
-            onOpenMap={handleOpenMap}
           />
         ))}
       </div>
-
-      <ReserveMapModal
-        open={mapOpen}
-        onClose={() => setMapOpen(false)}
-        initialLocationId={mapInitialLocationId}
-      />
     </div>
   );
 }
