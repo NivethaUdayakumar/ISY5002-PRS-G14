@@ -10,14 +10,9 @@
     "endangered": true
   },
   {
-    "name": "donkey",
-    "class": "Unknown",
-    "endangered": false
-  },
-  {
     "name": "Elephant",
     "class": "Mammals",
-    "endangered": true
+    "endangered": false
   },
   {
     "name": "Leopard",

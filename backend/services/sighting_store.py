@@ -31,11 +31,14 @@ _paths = {}  # sighting id -> path of its image inside its species folder
 _copies = {}  # sighting id -> path of its copy in the endangered folder
 _index_loaded = False
 
+# Model labels that are not part of the dataset; detections of these are not recorded.
+IGNORED_SPECIES = {"donkey"}
+
 # Species the dataset contains, seeded into species.json: name -> (class, endangered / protected).
 SEED_SPECIES = {
     "Rhino": ("Mammals", True),
     "Zebra": ("Mammals", False),
-    "Elephant": ("Mammals", True),
+    "Elephant": ("Mammals", False),
     "Okapi": ("Mammals", True),
     "Buffalo": ("Mammals", False),
     "Leopard": ("Mammals", True),
@@ -214,6 +217,7 @@ def _new_sighting_id(camera_id, moment):
 
 
 def record_detections(camera_id, detections, frame, offset):
+    detections = [item for item in detections if item["species"].lower() not in IGNORED_SPECIES]
     if not detections:
         return
 
