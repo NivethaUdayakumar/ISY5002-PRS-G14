@@ -3,6 +3,7 @@ import './App.css'
 import MainLayout from './layouts/main_layout'
 import CameraPage from './pages/camera_page'
 import CollectionPage from './pages/collection_page'
+import CollectionDetailPage from './pages/collection_detail_page'
 import {
   BrowserRouter,
   Routes,
@@ -18,6 +19,7 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<CameraPage />} />
           <Route path="/collections" element={<CollectionPage />} />
+          <Route path="/collections/:folderName" element={<CollectionDetailPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

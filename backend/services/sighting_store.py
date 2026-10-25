@@ -309,32 +309,76 @@ def delete_sighting(sighting_id):
         return True
 
 
+IMAGE_SUFFIXES = (".jpg", ".jpeg", ".png")
+FILE_NAME_PATTERN = re.compile(r"(camera_\d+)_(\d{8}T\d{6})(\d{0,6})Z")
+
+
+def _captured_at(path):
+    """Capture time from a "<camera_id>_<timestamp>.jpg" file name, falling back to the file's modified time."""
+    match = FILE_NAME_PATTERN.search(path.stem)
+    if not match:
+        return datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
+    moment = datetime.strptime(match.group(2), "%Y%m%dT%H%M%S").replace(tzinfo=timezone.utc)
+    return moment.replace(microsecond=int(match.group(3).ljust(6, "0")) if match.group(3) else 0)
+
+
+def _folder_images(folder):
+    """Images directly inside a collection folder, newest capture first."""
+    images = [path for path in folder.iterdir() if path.is_file() and path.suffix.lower() in IMAGE_SUFFIXES]
+    return sorted(images, key=lambda path: (_captured_at(path), path.name), reverse=True)
+
+
+def _collection_folder(folder_name):
+    folder = (SIGHTINGS_DIR / folder_name).resolve()
+    return folder if folder.parent == SIGHTINGS_DIR.resolve() and folder.is_dir() else None
+
+
 def get_collections():
-    """Lists each folder under SIGHTINGS_DIR with the number of files it holds and its most
-    recently modified image, largest first. imageUrl is None for folders with no images."""
+    """Lists each folder under SIGHTINGS_DIR with the number of files it holds and its newest
+    image, largest first. imageUrl is None for folders with no images."""
     if not SIGHTINGS_DIR.exists():
         return []
     collections = []
     for folder in SIGHTINGS_DIR.iterdir():
         if not folder.is_dir():
             continue
-        files = [path for path in folder.iterdir() if path.is_file()]
-        images = [path for path in files if path.suffix.lower() in (".jpg", ".jpeg", ".png")]
-        latest = max(images, key=lambda path: path.stat().st_mtime, default=None)
+        images = _folder_images(folder)
         collections.append({
             "name": folder.name,
-            "count": len(files),
-            "imageUrl": f"/collections/{folder.name}/{latest.name}" if latest else None,
+            "count": sum(1 for path in folder.iterdir() if path.is_file()),
+            "imageUrl": f"/collections/{folder.name}/{images[0].name}" if images else None,
         })
     return sorted(collections, key=lambda item: (-item["count"], item["name"]))
 
 
+def get_collection_images(folder_name):
+    """Every image in one collection folder, newest first, or None if the folder doesn't exist.
+    metadata is the sighting record stored in the image's EXIF (species, class, confidence, ...),
+    or None if the image has none. cameraId comes from that record, else from the file name."""
+    folder = _collection_folder(folder_name)
+    if folder is None:
+        return None
+    images = []
+    for path in _folder_images(folder):
+        match = FILE_NAME_PATTERN.search(path.stem)
+        metadata = _read_record(path)
+        images.append({
+            "file": path.name,
+            "imageUrl": f"/collections/{folder.name}/{path.name}",
+            "cameraId": (metadata or {}).get("cameraId") or (match.group(1) if match else None),
+            "capturedAt": _captured_at(path).isoformat(),
+            "metadata": metadata,
+        })
+    return {"name": folder.name, "images": images}
+
+
 def get_collection_image(folder_name, file_name):
     """Resolves an image inside a collection folder, refusing paths that escape SIGHTINGS_DIR."""
-    path = (SIGHTINGS_DIR / folder_name / file_name).resolve()
-    if path.parent.parent != SIGHTINGS_DIR.resolve() or not path.is_file():
+    folder = _collection_folder(folder_name)
+    if folder is None:
         return None
-    return path
+    path = (folder / file_name).resolve()
+    return path if path.parent == folder and path.is_file() else None
 
 
 def get_species():

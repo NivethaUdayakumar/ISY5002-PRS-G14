@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, TriangleAlert } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../data/cameras';
 import folderIcon from '../assets/collections/folder-icon.png';
 
+const ENDANGERED_COLLECTION = 'endangered';
+
 function CollectionCard({ collection }) {
+  const endangered = collection.name === ENDANGERED_COLLECTION;
   return (
-    <button type="button" className="group flex flex-col items-center text-center">
+    <Link to={`/collections/${encodeURIComponent(collection.name)}`} className="group flex flex-col items-center text-center">
       <div className="relative aspect-square w-full">
         <img
           src={folderIcon}
@@ -19,12 +23,17 @@ function CollectionCard({ collection }) {
             className="absolute left-[16%] top-[14%] h-[62%] w-[62%] rounded-md object-cover shadow-md ring-2 ring-white"
           />
         )}
+        {endangered && (
+          <span className="absolute right-[6%] top-[6%] flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow-md ring-2 ring-white">
+            <TriangleAlert className="h-4 w-4" />
+          </span>
+        )}
       </div>
       <div className="mt-1.5">
-        <p className="truncate text-xs font-semibold text-gray-900">{collection.name}</p>
+        <p className={`truncate text-xs font-semibold ${endangered ? 'text-red-700' : 'text-gray-900'}`}>{collection.name}</p>
         <p className="text-xs text-gray-500">Sightings: {collection.count}</p>
       </div>
-    </button>
+    </Link>
   );
 }
 
@@ -35,7 +44,11 @@ export default function CollectionPage() {
   useEffect(() => {
     fetch(`${API_BASE_URL}/collections`)
       .then((response) => response.json())
-      .then(setAllCollections)
+      // The backend orders by sighting count; the endangered collection always leads.
+      .then((items) => setAllCollections([
+        ...items.filter((item) => item.name === ENDANGERED_COLLECTION),
+        ...items.filter((item) => item.name !== ENDANGERED_COLLECTION),
+      ]))
       .catch((err) => console.error('Failed to fetch collections', err));
   }, []);
 
