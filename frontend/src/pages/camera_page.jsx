@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CLASS_META, sightingsForCamera } from "../data/reserve_map_data";
+import { sightingsForCamera } from "../data/reserve_map_data";
 
 const OFFSET_TICK_INTERVAL_MS = 1000;
 const API_BASE_URL = "http://127.0.0.1:8000";
@@ -31,7 +31,6 @@ const areas = [
 const CAMERA_IDS = areas.flatMap((area) => area.cameras.map((camera) => camera.id));
 
 const NEW_SPECIES = "__new__";
-const CLASS_OPTIONS = Object.keys(CLASS_META);
 const MIN_FRAME_INTERVAL_MS = 100;
 const SIGHTINGS_POLL_MS = 1500;
 const EMPTY_STATS = { sightings: 0, species: 0 };
@@ -122,13 +121,11 @@ function SelectField({ label, value, options, onChange }) {
   );
 }
 
-function SightingRecord({ sighting, location, onBack, onClose, onSaved, onDeleted, onViewCollection }) {
-  const [species, setSpecies] = useState(sighting.species);
-  const [sightingClass, setSightingClass] = useState(classOf(sighting));
-  const [endangered, setEndangered] = useState(Boolean(sighting.endangered));
-  const [busy, setBusy] = useState(false);
+function SightingRecord({ sighting, location, onBack, onClose, onSaved, onViewCollection }) {
   const [catalog, setCatalog] = useState([]);
+  const [addingNew, setAddingNew] = useState(false);
   const [newSpecies, setNewSpecies] = useState("");
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/species`)
@@ -142,26 +139,14 @@ function SightingRecord({ sighting, location, onBack, onClose, onSaved, onDelete
     ...names.map((name) => ({ value: name, label: name })),
     { value: NEW_SPECIES, label: "+ Add new species…" },
   ];
-  const addingNew = species === NEW_SPECIES;
-  const chosenSpecies = addingNew ? newSpecies.trim() : species;
 
-  const chooseSpecies = (value) => {
-    setSpecies(value);
-    const known = catalog.find((item) => item.name === value);
-    if (known) {
-      setSightingClass(known.class);
-      setEndangered(Boolean(known.endangered));
-    }
-  };
-
-  const save = async () => {
-    if (!chosenSpecies) return;
+  const apply = async (changes) => {
     setBusy(true);
     try {
       const response = await fetch(`${API_BASE_URL}/sightings/${sighting.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ species: chosenSpecies, class: sightingClass, endangered }),
+        body: JSON.stringify(changes),
       });
       if (response.ok) onSaved(await response.json());
     } finally {
@@ -169,14 +154,22 @@ function SightingRecord({ sighting, location, onBack, onClose, onSaved, onDelete
     }
   };
 
-  const remove = async () => {
-    setBusy(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/sightings/${sighting.id}`, { method: "DELETE" });
-      if (response.ok) onDeleted(sighting.id);
-    } finally {
-      setBusy(false);
+  const chooseSpecies = (value) => {
+    if (value === NEW_SPECIES) {
+      setAddingNew(true);
+      return;
     }
+    setAddingNew(false);
+    const known = catalog.find((item) => item.name === value);
+    apply({ species: value, class: known?.class ?? classOf(sighting), endangered: Boolean(known?.endangered) });
+  };
+
+  const submitNewSpecies = () => {
+    const name = newSpecies.trim();
+    if (!name) return;
+    setAddingNew(false);
+    setNewSpecies("");
+    apply({ species: name, class: "Unknown", endangered: false });
   };
 
   return (
@@ -213,6 +206,10 @@ function SightingRecord({ sighting, location, onBack, onClose, onSaved, onDelete
           <p className="mt-2 text-sm text-gray-500">
             {sighting.cameraId} · Confidence {sighting.confidence.toFixed(2)}
           </p>
+          {sighting.file && <p className="font-mono text-xs text-gray-400">data/sightings/{sighting.file}</p>}
+          <button type="button" onClick={onViewCollection} className="mt-4 font-semibold text-gray-900 underline">
+            View collection →
+          </button>
         </div>
 
         <div className="space-y-4">
@@ -223,51 +220,31 @@ function SightingRecord({ sighting, location, onBack, onClose, onSaved, onDelete
             <p><span className="font-bold">Location:</span> {location}</p>
           </div>
 
-          <SelectField label="Reclassify species" value={species} options={speciesOptions} onChange={chooseSpecies} />
+          <SelectField
+            label="Reclassify species"
+            value={addingNew ? NEW_SPECIES : sighting.species}
+            options={speciesOptions}
+            onChange={chooseSpecies}
+          />
           {addingNew && (
             <input
               type="text"
               autoFocus
               value={newSpecies}
               onChange={(event) => setNewSpecies(event.target.value)}
-              placeholder="New species name"
+              onBlur={submitNewSpecies}
+              onKeyDown={(event) => event.key === "Enter" && event.currentTarget.blur()}
+              placeholder="New species name, then press Enter"
               className="w-full rounded-full border border-gray-300 bg-white px-5 py-3 text-base text-gray-900"
             />
           )}
           <SelectField
-            label="Reclassify class"
-            value={sightingClass}
-            options={CLASS_OPTIONS.map((name) => ({ value: name, label: name }))}
-            onChange={setSightingClass}
-          />
-          <SelectField
             label="Endangered / protected"
-            value={endangered ? "yes" : "no"}
+            value={sighting.endangered ? "yes" : "no"}
             options={[{ value: "no", label: "No" }, { value: "yes", label: "Yes" }]}
-            onChange={(value) => setEndangered(value === "yes")}
+            onChange={(value) => apply({ endangered: value === "yes" })}
           />
-
-          <div className="flex items-center gap-3 pt-2">
-            <button
-              type="button"
-              disabled={busy || !chosenSpecies}
-              onClick={save}
-              className="rounded-full bg-gray-900 px-8 py-3 font-semibold text-white hover:bg-gray-700 disabled:opacity-50"
-            >
-              Save
-            </button>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={remove}
-              className="rounded-full bg-gray-200 px-6 py-3 font-semibold text-gray-900 hover:bg-gray-300 disabled:opacity-50"
-            >
-              Delete sighting
-            </button>
-            <button type="button" onClick={onViewCollection} className="ml-auto font-semibold text-gray-900 underline">
-              View collection →
-            </button>
-          </div>
+          {busy && <p className="text-xs text-gray-400">Saving…</p>}
         </div>
       </div>
     </div>
@@ -296,7 +273,12 @@ const SightingListItem = memo(
               {sighting.confidence.toFixed(2)}
             </span>
           </div>
-          <p className="mt-1 text-[11px] text-gray-500">{formatTimestamp(sighting.lastSeen)}</p>
+          <div className="mt-1 flex items-center justify-between gap-2">
+            <p className="text-[11px] text-gray-500">{formatTimestamp(sighting.lastSeen)}</p>
+            {sighting.endangered && (
+              <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-700">Endangered</span>
+            )}
+          </div>
         </div>
       </button>
     );
@@ -305,10 +287,11 @@ const SightingListItem = memo(
     prev.sighting.id === next.sighting.id &&
     prev.sighting.lastSeen === next.sighting.lastSeen &&
     prev.sighting.species === next.sighting.species &&
+    prev.sighting.endangered === next.sighting.endangered &&
     prev.sighting.confidence === next.sighting.confidence
 );
 
-function CameraLiveModal({ camera, areaName, frameSrc, sightings, onClose, onViewCollection, onSightingSaved, onSightingDeleted }) {
+function CameraLiveModal({ camera, areaName, frameSrc, sightings, onClose, onViewCollection, onSightingSaved }) {
   const [selectedSightingId, setSelectedSightingId] = useState(null);
 
   const cameraSightings = useMemo(
@@ -330,10 +313,6 @@ function CameraLiveModal({ camera, areaName, frameSrc, sightings, onClose, onVie
             onBack={() => setSelectedSightingId(null)}
             onClose={onClose}
             onSaved={onSightingSaved}
-            onDeleted={(id) => {
-              setSelectedSightingId(null);
-              onSightingDeleted(id);
-            }}
             onViewCollection={onViewCollection}
           />
         ) : (
@@ -465,7 +444,7 @@ export default function CameraPage() {
         const response = await fetch(`${API_BASE_URL}/sightings`);
         if (!response.ok || cancelled) return;
         const data = await response.json();
-        const signature = data.map((item) => `${item.id}:${item.lastSeen}:${item.species}:${item.class}`).join("|");
+        const signature = data.map((item) => `${item.id}:${item.lastSeen}:${item.species}:${item.class}:${item.endangered}`).join("|");
         if (signature !== sightingsSignatureRef.current) {
           sightingsSignatureRef.current = signature;
           setRuntimeSightings(data);
@@ -519,7 +498,6 @@ export default function CameraPage() {
           onSightingSaved={(updated) =>
             setRuntimeSightings((prev) => prev.map((item) => (item.id === updated.id ? updated : item)))
           }
-          onSightingDeleted={(id) => setRuntimeSightings((prev) => prev.filter((item) => item.id !== id))}
           onViewCollection={() => {
             setSelectedCamera(null);
             navigate("/collections");

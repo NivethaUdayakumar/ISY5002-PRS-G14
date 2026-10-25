@@ -83,5 +83,6 @@ ai-applications/runs/
 ai-applications/pipeline/predictions/
 ai-applications/*.pt
 # runtime sighting crops (regenerated on every backend start)
+data/sightings/**/*.jpg
 data/sightings/*.jpg
 ai-applications/trained_models/*.pth
