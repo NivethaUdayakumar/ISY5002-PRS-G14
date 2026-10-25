@@ -148,11 +148,15 @@ export default function CameraPage() {
   const requestIdRef = useRef(0);
   const appliedRequestIdRef = useRef(0);
   const mountedRef = useRef(true);
+  // Object URLs currently shown per camera, so they can be revoked when replaced.
+  const frameUrlsRef = useRef({});
 
   useEffect(() => {
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
+      Object.values(frameUrlsRef.current).forEach((url) => URL.revokeObjectURL(url));
+      frameUrlsRef.current = {};
     };
   }, []);
 
@@ -178,18 +182,31 @@ export default function CameraPage() {
         );
         if (!res.ok) return;
 
+        const isStale = () =>
+          !mountedRef.current || requestId <= appliedRequestIdRef.current;
+
         const data = await res.json();
-        if (!mountedRef.current || requestId <= appliedRequestIdRef.current) return;
+        if (isStale()) return;
+
+        // Convert the base64 data URLs to Blobs shown via object URLs. Setting a
+        // fresh multi-hundred-KB data URL as <img src> every tick makes the
+        // browser keep each decoded image around and eventually run out of
+        // memory; object URLs can be revoked once they're replaced.
+        const blobs = await Promise.all(
+          Object.entries(data)
+            .filter(([, src]) => src) // null = camera unreadable; keep its last frame
+            .map(async ([cameraId, src]) => [cameraId, await (await fetch(src)).blob()])
+        );
+        if (isStale()) return;
 
         appliedRequestIdRef.current = requestId;
-        // Keep a camera's last frame if this batch couldn't read it (null).
-        setFrames((prev) => {
-          const next = { ...prev };
-          for (const [cameraId, src] of Object.entries(data)) {
-            if (src) next[cameraId] = src;
-          }
-          return next;
-        });
+        const next = { ...frameUrlsRef.current };
+        for (const [cameraId, blob] of blobs) {
+          if (next[cameraId]) URL.revokeObjectURL(next[cameraId]);
+          next[cameraId] = URL.createObjectURL(blob);
+        }
+        frameUrlsRef.current = next;
+        setFrames(next);
       } catch (err) {
         console.error("Failed to fetch camera frames", err);
       }
