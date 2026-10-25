@@ -1,9 +1,41 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Outlet, NavLink } from "react-router-dom";
 import NotificationsModal from "../modals/notifications_modal";
+import { API_BASE_URL } from "../data/cameras";
+
+const SIGHTINGS_POLL_MS = 1500;
 
 export default function MainLayout() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [endangeredSightings, setEndangeredSightings] = useState([]);
+  const signatureRef = useRef("");
+
+  // Live list of endangered sightings, shared by the header button and the modal.
+  useEffect(() => {
+    let cancelled = false;
+
+    const poll = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/sightings`);
+        if (!response.ok || cancelled) return;
+        const endangered = (await response.json()).filter((sighting) => sighting.endangered);
+        const signature = endangered.map((item) => `${item.id}:${item.lastSeen}:${item.species}`).join("|");
+        if (signature !== signatureRef.current) {
+          signatureRef.current = signature;
+          setEndangeredSightings(endangered);
+        }
+      } catch (err) {
+        console.error("Failed to fetch sightings", err);
+      }
+    };
+
+    poll();
+    const interval = setInterval(poll, SIGHTINGS_POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
     <>
@@ -47,12 +79,17 @@ export default function MainLayout() {
 
 
             <button
+                type="button"
                 onClick={() => setNotificationsOpen(true)}
-                className="relative flex items-center gap-1.5 text-sm font-medium text-gray-700 hover:text-gray-900"
+                className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-900"
             >
                 Notifications
-                <span className="absolute -top-2 -right-3 flex items-center justify-center w-4 h-4 rounded-full bg-black text-white text-[10px] leading-none">
-                3
+                <span
+                  className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-semibold leading-none ${
+                    endangeredSightings.length > 0 ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-600'
+                  }`}
+                >
+                  {endangeredSightings.length}
                 </span>
             </button>
 
@@ -62,7 +99,7 @@ export default function MainLayout() {
       </div>
     </header>
     <Outlet />
-    <NotificationsModal open={notificationsOpen} onClose={() => setNotificationsOpen(false)} />
+    <NotificationsModal open={notificationsOpen} onClose={() => setNotificationsOpen(false)} sightings={endangeredSightings} />
     </>
   );
 }

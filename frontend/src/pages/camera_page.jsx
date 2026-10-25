@@ -1,34 +1,7 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { sightingsForCamera } from "../data/reserve_map_data";
-
-const OFFSET_TICK_INTERVAL_MS = 1000;
-const API_BASE_URL = "http://127.0.0.1:8000";
-
-const areas = [
-  {
-    name: "Sonian Forest",
-    location: "Belgium",
-    cameraCount: 3,
-    cameras: [
-      { id: "camera_01", name: "Camera 01" },
-      { id: "camera_02", name: "Camera 02" },
-      { id: "camera_03", name: "Camera 03" },
-    ],
-  },
-  {
-    name: "Coastal Lagoons",
-    location: "The Scrape — shingle & shallow lagoons",
-    cameraCount: 3,
-    cameras: [
-      { id: "camera_04", name: "Scrape East" },
-      { id: "camera_05", name: "Sluice" },
-      { id: "camera_06", name: "Sluice" },
-    ],
-  },
-];
-
-const CAMERA_IDS = areas.flatMap((area) => area.cameras.map((camera) => camera.id));
+import { API_BASE_URL, CAMERA_IDS, areas, formatTimestamp } from "../data/cameras";
 
 const NEW_SPECIES = "__new__";
 const MIN_FRAME_INTERVAL_MS = 100;
@@ -37,12 +10,6 @@ const EMPTY_STATS = { sightings: 0, species: 0 };
 
 function classOf(sighting) {
   return sighting.class ?? "Unknown";
-}
-
-function formatTimestamp(iso) {
-  const date = new Date(iso);
-  const day = date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-  return `${day} ${date.toLocaleTimeString("en-GB", { hour12: false })}`;
 }
 
 const CameraCard = memo(function CameraCard({ camera, frameSrc, stats }) {
