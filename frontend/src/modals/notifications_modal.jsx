@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ModalOverlay, ModalCard, ModalHeader } from '../components/modal';
-import { API_BASE_URL, cameraLocation, formatTimestamp } from '../data/cameras';
+import { API_BASE_URL, cameraLocation, cameraName, formatTimestamp } from '../data/cameras';
 
 export default function NotificationsModal({ open, onClose, sightings }) {
   const [selectedId, setSelectedId] = useState(null);
@@ -48,7 +48,9 @@ export default function NotificationsModal({ open, onClose, sightings }) {
                 />
                 <div className="min-w-0">
                   <span className="block truncate text-sm font-semibold text-gray-900">{sighting.species}</span>
-                  <p className="truncate text-xs text-gray-500">{cameraLocation(sighting.cameraId)}</p>
+                  <span className="mt-0.5 inline-block max-w-full truncate rounded-full bg-gray-900 px-2.5 py-0.5 text-xs font-semibold text-white">
+                    {cameraName(sighting.cameraId)}
+                  </span>
                   <p className="truncate text-xs text-gray-400">{formatTimestamp(sighting.lastSeen)}</p>
                 </div>
               </button>
@@ -64,6 +66,9 @@ export default function NotificationsModal({ open, onClose, sightings }) {
                     alt={selectedSighting.species}
                     className="mx-auto max-h-[60vh] w-full object-contain"
                   />
+                  <span className="absolute left-4 top-4 rounded-full bg-gray-900 px-5 py-2 text-lg font-bold text-white shadow-lg">
+                    {cameraName(selectedSighting.cameraId)}
+                  </span>
                   <span className="absolute bottom-3 left-4 rounded bg-black/70 px-2 py-1 font-mono text-xs text-white">
                     {formatTimestamp(selectedSighting.lastSeen)}
                   </span>

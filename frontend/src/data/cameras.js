@@ -39,3 +39,12 @@ export function formatTimestamp(iso) {
   const day = date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
   return `${day} ${date.toLocaleTimeString("en-GB", { hour12: false })}`;
 }
+
+/** Display name of a camera, e.g. "Scrape East", or the id itself if unknown. */
+export function cameraName(cameraId) {
+  for (const area of areas) {
+    const camera = area.cameras.find((item) => item.id === cameraId);
+    if (camera) return camera.name;
+  }
+  return cameraId;
+}
