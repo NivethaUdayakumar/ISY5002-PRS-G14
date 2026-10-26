@@ -1,31 +1,9 @@
-from pathlib import Path
-from threading import Lock
-
 import cv2
-import torch
 from PIL import Image
-from rfdetr import from_checkpoint
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-WEIGHTS_PATH = BASE_DIR / "ai-applications" / "trained_models" / "rfdetr_erasing_10_best.pth"
+from services.ensemble_service import load_ensemble
+
 BOX_COLOR = (30, 200, 90)  # BGR
-
-_model = None
-_model_lock = Lock()
-
-
-def _load_model():
-    global _model
-    if _model is None:
-        with _model_lock:
-            if _model is None:
-                model = from_checkpoint(str(WEIGHTS_PATH))
-                # FP16 roughly halves GPU latency. compile=False keeps the model usable
-                # with any batch size (a traced model is fixed to one batch size).
-                if torch.cuda.is_available():
-                    model.inference(compile=False, dtype=torch.float16)
-                _model = model
-    return _model
 
 
 def _draw_detections(frame, detections, class_names):
@@ -51,23 +29,22 @@ def _draw_detections(frame, detections, class_names):
         )
 
 
-def detect_and_annotate_batch(frames, confidence):
-    """Runs the RF-DETR model on a list of BGR frames in a single batch, draws
+def detect_and_annotate_batch(frames, confidence=None):
+    """Runs the RF-DETR WBF ensemble on a list of BGR frames in a single batch, draws
     boxes/labels on each in place, and returns the annotated frames."""
     annotated, _ = detect_batch_with_metadata(frames, confidence)
     return annotated
 
 
-def detect_batch_with_metadata(frames, confidence):
-    """Return annotated frames and serializable detections for each frame."""
+def detect_batch_with_metadata(frames, confidence=None):
+    """Return annotated frames and serializable detections for each frame.
+    `confidence` defaults to the ensemble's own threshold (picked on the val split)."""
     if not frames:
         return [], []
 
-    model = _load_model()
+    ensemble = load_ensemble()
     images = [Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)) for frame in frames]
-    results = model.predict(images, threshold=confidence, include_source_image=False)
-    if not isinstance(results, list):
-        results = [results]
+    results = ensemble.predict_batch(images, confidence)
 
     metadata = []
     for frame, detections in zip(frames, results):
@@ -80,18 +57,18 @@ def detect_batch_with_metadata(frames, confidence):
             crop = frame[max(0, y1):min(height, y2), max(0, x1):min(width, x2)].copy()
             frame_detections.append({
                 "crop": crop,
-                "species": model.class_names[class_id],
+                "species": ensemble.class_names[class_id],
                 "classId": class_id,
                 "confidence": float(score),
                 "bbox": [int(value) for value in box],
             })
-        _draw_detections(frame, detections, model.class_names)
+        _draw_detections(frame, detections, ensemble.class_names)
         metadata.append(frame_detections)
 
     return frames, metadata
 
 
-def detect_and_annotate(frame, camera_id, confidence):
-    """Runs the RF-DETR model on a single BGR `frame`, draws boxes/labels on it
+def detect_and_annotate(frame, camera_id, confidence=None):
+    """Runs the RF-DETR WBF ensemble on a single BGR `frame`, draws boxes/labels on it
     in place, and returns the annotated frame."""
     return detect_and_annotate_batch([frame], confidence)[0]

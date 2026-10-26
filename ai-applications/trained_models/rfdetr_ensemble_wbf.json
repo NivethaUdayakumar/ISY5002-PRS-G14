@@ -1,0 +1,35 @@
+{
+  "name": "Ensemble (WBF)",
+  "method": "weighted_boxes_fusion",
+  "flip_tta": false,
+  "models": [
+    {
+      "name": "RF-DETR erasing 0.1",
+      "path": "ai-applications/trained_models/rfdetr_erasing_10.pth",
+      "weight": 1.0
+    },
+    {
+      "name": "RF-DETR dropout 0.1",
+      "path": "ai-applications/trained_models/rfdetr_dropout_10.pth",
+      "weight": 1.0
+    },
+    {
+      "name": "RF-DETR dropout 0.2",
+      "path": "ai-applications/trained_models/rfdetr_dropout_20.pth",
+      "weight": 1.0
+    }
+  ],
+  "wbf_iou": 0.55,
+  "skip_box_thr": 0.1,
+  "predict_threshold": 0.01,
+  "confidence_threshold": 0.5,
+  "class_names": [
+    "buffalo",
+    "elephant",
+    "rhino",
+    "zebra",
+    "okapi",
+    "leopard",
+    "cheetah"
+  ]
+}

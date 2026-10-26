@@ -14,7 +14,7 @@ router = APIRouter(
     tags=[""]
 )
 
-CONFIDENCE = 0.45
+CONFIDENCE = 0.5  # WBF ensemble threshold; boxes scoring below it are dropped
 PREVIEW_MAX_WIDTH = 854
 PREVIEW_JPEG_QUALITY = 75
 
