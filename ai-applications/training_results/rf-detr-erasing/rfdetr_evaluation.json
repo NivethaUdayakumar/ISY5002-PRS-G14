@@ -1,0 +1,12 @@
+[
+  {
+    "Model":"RF-DETR-M + erasing",
+    "Precision":0.9640026213,
+    "Recall":0.9434846205,
+    "mAP50":0.9878357095,
+    "mAP50-95":0.8930672029,
+    "mAP75":0.9468082411,
+    "Training time (min)":22.6407207767,
+    "Best weights":"ai-applications\/trained_models\/rfdetr_medium_erasing_best.pth"
+  }
+]

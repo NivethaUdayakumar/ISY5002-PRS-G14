@@ -1,0 +1,2 @@
+Model,Precision,Recall,mAP50,mAP50-95,mAP75,Training time (min),Best weights
+RF-DETR-M + dropout 10%,0.9748236331569665,0.9629677250494838,0.9905596500238907,0.8874528041486187,0.9387780831233615,95.6101395368576,ai-applications/trained_models/rfdetr_dropout_10.pth

@@ -1,0 +1,12 @@
+[
+  {
+    "Model":"RF-DETR-M + flip",
+    "Precision":0.9465824452,
+    "Recall":0.9335807684,
+    "mAP50":0.9749735387,
+    "mAP50-95":0.8863705123,
+    "mAP75":0.9445766912,
+    "Training time (min)":19.4040657838,
+    "Best weights":"ai-applications\/trained_models\/rfdetr_flip_best.pth"
+  }
+]

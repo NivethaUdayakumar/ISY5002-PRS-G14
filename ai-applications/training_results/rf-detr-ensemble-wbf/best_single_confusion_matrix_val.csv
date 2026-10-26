@@ -1,0 +1,9 @@
+,pred buffalo,pred elephant,pred rhino,pred zebra,pred okapi,pred leopard,pred cheetah,pred background
+true buffalo,48,0,0,0,0,0,0,5
+true elephant,0,44,0,0,0,0,0,1
+true rhino,0,0,54,0,0,0,0,2
+true zebra,0,0,0,92,0,0,0,7
+true okapi,0,0,0,0,70,0,0,0
+true leopard,0,0,0,0,0,61,0,0
+true cheetah,0,0,0,0,0,2,68,3
+true background,3,1,0,5,0,0,1,0

@@ -1,0 +1,8 @@
+,Correct,Wrong class,Missed,False detections,Classification accuracy
+buffalo,54,0,6,0,1.0
+elephant,67,0,8,4,1.0
+rhino,41,1,1,1,0.9761904761904762
+zebra,73,0,7,1,1.0
+okapi,80,0,2,0,1.0
+leopard,62,0,1,0,1.0
+cheetah,68,0,3,0,1.0

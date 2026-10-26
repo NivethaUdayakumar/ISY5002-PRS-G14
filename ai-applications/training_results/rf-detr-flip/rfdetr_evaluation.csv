@@ -1,0 +1,2 @@
+Model,Precision,Recall,mAP50,mAP50-95,mAP75,Training time (min),Best weights
+RF-DETR-M + flip,0.9465824451801977,0.9335807683888854,0.9749735386823495,0.8863705123346589,0.9445766912090896,19.404065783818563,ai-applications/trained_models/rfdetr_flip_best.pth

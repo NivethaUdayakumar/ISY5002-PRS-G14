@@ -1,2 +1,0 @@
-Model,Precision,Recall,mAP50,mAP50-95,mAP75,Training time (min),Best weights
-RF-DETR-M,0.9851997101997102,0.9652188552188553,0.9907115851298417,0.8978272072519037,0.9568865637082865,29.203155728181205,ai-applications/trained_models/rfdetr_medium_best.pth

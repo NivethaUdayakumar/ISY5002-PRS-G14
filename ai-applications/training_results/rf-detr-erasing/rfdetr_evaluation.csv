@@ -1,0 +1,2 @@
+Model,Precision,Recall,mAP50,mAP50-95,mAP75,Training time (min),Best weights
+RF-DETR-M + erasing,0.9640026212555097,0.9434846204541542,0.9878357094956254,0.893067202931652,0.9468082411233152,22.64072077671687,ai-applications/trained_models/rfdetr_medium_erasing_best.pth

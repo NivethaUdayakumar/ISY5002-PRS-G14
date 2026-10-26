@@ -1,0 +1,12 @@
+[
+  {
+    "Model":"RF-DETR-M + dropout 20%",
+    "Precision":0.9847475026,
+    "Recall":0.9395435606,
+    "mAP50":0.9872221568,
+    "mAP50-95":0.870551659,
+    "mAP75":0.9247681988,
+    "Training time (min)":145.3046809753,
+    "Best weights":"ai-applications\/trained_models\/rfdetr_dropout_20.pth"
+  }
+]

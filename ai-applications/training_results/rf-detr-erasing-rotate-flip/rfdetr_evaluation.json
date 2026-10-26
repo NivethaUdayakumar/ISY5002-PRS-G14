@@ -1,0 +1,12 @@
+[
+  {
+    "Model":"RF-DETR-M + erasing + rotate + flip",
+    "Precision":0.9578443554,
+    "Recall":0.9403565708,
+    "mAP50":0.9757762054,
+    "mAP50-95":0.8748566577,
+    "mAP75":0.9323961012,
+    "Training time (min)":39.9471961776,
+    "Best weights":"ai-applications\/trained_models\/rfdetr_medium_erasing_rotate_flip_best.pth"
+  }
+]
