@@ -46,7 +46,6 @@ function AreaSection({ area, frames, stats, onOpenCamera }) {
       <div className="border-b border-gray-200 pb-3">
         <div className="flex items-baseline gap-3">
           <h2 className="text-base font-semibold text-gray-900">{area.name}</h2>
-          <span className="text-sm text-gray-500">{area.location}</span>
           <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
             {area.cameraCount} cameras
           </span>

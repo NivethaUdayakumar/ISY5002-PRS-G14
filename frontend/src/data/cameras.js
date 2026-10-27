@@ -3,7 +3,6 @@ export const API_BASE_URL = "http://127.0.0.1:8000";
 export const areas = [
   {
     name: "Golden Plains",
-    location: "Belgium",
     cameraCount: 3,
     cameras: [
       { id: "camera_01", name: "Camera 01" },
@@ -13,7 +12,6 @@ export const areas = [
   },
   {
     name: "Red Dust Plains",
-    location: "The Scrape — shingle & shallow lagoons",
     cameraCount: 3,
     cameras: [
       { id: "camera_04", name: "Camera 04" },
