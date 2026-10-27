@@ -1,6 +1,6 @@
-# WildLens
+# ISY5002 PRS G14 WildLens
 
-ISY5002 PRS Group 14 — Automated Wildlife Detection from Live camera-trap feeds.
+Automated Wildlife Detection from Live camera-trap feeds.
 
 **Team:** Nivetha Udayakumar (A0245895L), Lim Zheng Tao (A0339804X)
 
