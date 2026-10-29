@@ -62,7 +62,7 @@ The ensemble settings (weights, fusion thresholds, class names) are in `ai-appli
 
 ### 3. Camera videos
 
-The six camera feeds are video files that are not in git. [Download them from Google Drive](https://drive.google.com/file/d/1CKFVP6j9nsGN-oa-KtbWa0CDdHvTqTd_/view) and place them at:
+The six camera feeds are video files that are not in git. [Download them from Google Drive](https://drive.google.com/file/d/1QhYvq_0j6vFHR4i-ZOsfqbDfDAQU6rku/view?usp=sharing) and place them at:
 
 - `data/live-cam/location-a/camera_01.mp4`
 - `data/live-cam/location-a/camera_02.mp4`
