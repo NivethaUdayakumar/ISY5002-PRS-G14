@@ -64,8 +64,12 @@ The ensemble settings (weights, fusion thresholds, class names) are in `ai-appli
 
 The six camera feeds are video files that are not in git. [Download them from Google Drive](https://drive.google.com/file/d/1CKFVP6j9nsGN-oa-KtbWa0CDdHvTqTd_/view) and place them at:
 
-- `data/live-cam/location-a/camera_01.mp4`, `camera_02.mp4`, `camera_03.mp4`
-- `data/live-cam/location-b/camera_04.mp4`, `camera_05.mp4`, `camera_06.mp4`
+- `data/live-cam/location-a/camera_01.mp4`
+- `data/live-cam/location-a/camera_02.mp4`
+- `data/live-cam/location-a/camera_03.mp4`
+- `data/live-cam/location-b/camera_04.mp4`
+- `data/live-cam/location-b/camera_05.mp4`
+- `data/live-cam/location-b/camera_06.mp4`
 
 ### 4. Frontend dependencies
 
